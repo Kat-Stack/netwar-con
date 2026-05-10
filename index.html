@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crossing the Oricon | Austin, TX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0a0a0a; color: #e5e5e5; }
+        .neon-accent { color: #00ffcc; }
+        .glass-panel { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
+        .bg-grid { background-image: linear-gradient(to right, #1f2937 1px, transparent 1px), linear-gradient(to bottom, #1f2937 1px, transparent 1px); background-size: 40px 40px; }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen bg-grid flex flex-col items-center p-6 sm:p-12 relative overflow-x-hidden">
+
+    <div class="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-[#00ffcc] opacity-5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+
+    <div class="max-w-5xl w-full z-10">
+        <div class="text-center mb-16 mt-8">
+            <h1 class="text-5xl sm:text-7xl font-bold mb-4 tracking-tighter uppercase">Crossing the <span class="neon-accent">Oricon</span></h1>
+            <p class="text-xl sm:text-2xl text-gray-400 mb-4">A Summit on Information Flow, Cognitive Security, and Applied Network Theory</p>
+            <p class="inline-block bg-black bg-opacity-50 border border-[#00ffcc] text-[#00ffcc] font-mono tracking-widest uppercase px-6 py-2 rounded-full text-sm">
+                Austin, Texas • Late 2026
+            </p>
+        </div>
+
+        <div class="glass-panel p-8 sm:p-12 rounded-lg mb-12 shadow-2xl">
+            <h2 class="text-3xl font-bold mb-6 border-b border-gray-700 pb-4 neon-accent">The Event</h2>
+            <p class="text-gray-300 leading-relaxed mb-10 text-lg">
+                Crossing the Oricon is an immersive, multi-day event bridging theoretical frameworks with applied wargaming. Designed to stress-test cognitive security and model information entropy, participants will map collective social organisms in real-time.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+                <div class="border-l-2 border-[#00ffcc] pl-4">
+                    <h3 class="text-xl font-bold text-white mb-2">Expert Briefings</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Keynotes from leading theorists in information warfare, systems theory, and network coordination.</p>
+                </div>
+                <div class="border-l-2 border-[#00ffcc] pl-4">
+                    <h3 class="text-xl font-bold text-white mb-2">Narrative Squad Games</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Applied theory in real-time. Participants organize into tactical squads to navigate live information environments.</p>
+                </div>
+                <div class="border-l-2 border-[#00ffcc] pl-4">
+                    <h3 class="text-xl font-bold text-white mb-2">Cybernetic Social Art</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Exploring the intersection of human connection and technology through live, interactive network mapping.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-6 mb-12">
+            <a href="#" class="bg-[#00ffcc] text-black font-bold py-4 px-10 rounded hover:bg-white transition duration-300 text-lg uppercase tracking-wide w-full sm:w-auto text-center shadow-[0_0_15px_rgba(0,255,204,0.4)] hover:shadow-[0_0_25px_rgba(255,255,255,0.6)]">
+                Secure Credentials
+            </a>
+            
+            <a href="#" class="bg-transparent border border-[#00ffcc] text-[#00ffcc] font-bold py-4 px-10 rounded hover:bg-[#00ffcc] hover:text-black transition duration-300 text-lg uppercase tracking-wide w-full sm:w-auto text-center">
+                Access Virtnet Mesh
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
