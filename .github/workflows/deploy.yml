@@ -30,7 +30,7 @@ jobs:
         run: npm run build
 
       - name: Create CNAME file
-        run: mv CNAME > ./dist/CNAME
+        run: cp CNAME ./dist/CNAME
 
       - name: Upload production-ready build files
         uses: actions/upload-artifact@v4
