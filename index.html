@@ -11,9 +11,6 @@
   <body>
     <style>
       main {
-        /* display: flex;
-        flex-direction: column;
-        justify-content: center; */
         min-height: 70vh;
         padding: 2rem;
         max-width: 640px;
@@ -28,6 +25,22 @@
 
       h3 {
         margin-top: 60px;
+      }
+      
+      /* Added simple table styling to match your minimal theme */
+      table.timeline {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        font-size: 0.95rem;
+      }
+      table.timeline th, table.timeline td {
+        padding: 8px 0;
+        border-bottom: 1px solid #eaeaea;
+        text-align: left;
+      }
+      table.timeline th {
+        border-bottom: 2px solid #1a1a1a;
       }
 
     </style>
@@ -84,6 +97,49 @@
       </p>
 
       <h3>
+        Event Timeline
+      </h3>
+
+      <table class="timeline">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Session / Activity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Friday, Sept 4</strong></td>
+            <td>17:00 - 19:00</td>
+            <td>Arrival, Registration & Infrastructure Check</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>19:00 - 21:00</td>
+            <td>Opening Briefing & Mixer</td>
+          </tr>
+          
+          <tr>
+            <td><strong>Saturday, Sept 5</strong></td>
+            <td>09:00 - 12:00</td>
+            <td>Morning Strategy Panels & John Arquilla Briefing</td>
+          </tr>
+    
+          <tr>
+            <td><strong>Sunday, Sept 6</strong></td>
+            <td>10:00 - 13:00</td>
+            <td>Action Items and panel</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>13:00 - 15:00</td>
+            <td>game time Closing Remarks & Load Out</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>
         Apply to Join
       </h3>
 
@@ -109,74 +165,13 @@
 
       <hr/>
 
-      <!-- <p>
-        <a href="https://en.wikipedia.org/wiki/John_Arquilla">John Arquilla</a> will (remotely) kick off the event Friday night with a special briefing to all players defining the game's objectives & guard rails.
-      </p> -->
-
-      <!-- <h3>
-        Live players - test
-      </h3>
-      
-      <p>
-        Confirmed:
-      </p>
-
-      <ul>
-        <li>Defender</li>
-      </ul>
-
-      <p>
-        Invited:
-      </p>
-
-      <ul>
-        <li>Flesh Simulator</li>
-      </ul> 
-      
-      <p>
-        See <a href="https://defenderofthebasic.substack.com/p/the-last-psyop">Defender's description of the event</a>.
-      </p>
-      
-      -->
-
-      <!-- <h3>
-        Staff
-      </h3>
-
-      <ul>
-        <li>Omar Shehata, <a href="https://prosocialengineering.org/" target="_blank">Prosocial Engineering</a></li>
-        <li>Katt</li>
-        <li>Raphael Lyon</li>
-      </ul> -->
-
-<!-- 
-
-- It's an event in September, in Austen TX
-- Luma page
-- GitHub backstage
-- Fangorn discord 
-- Featured speakers 
-- Who we're still reaching out to 
-- Funding, budget, venue, sponsorship, tickets
-- LLC
-
-Some kind of roadmap / timeline?
-
--->
-
-
-
     </main>
-
 
     <div id="footer">
       <p class="small">
         See GitHub for backstage planning & the discussion: <a href="https://github.com/Kat-Stack/netwar-con" target="_blank">https://github.com/Kat-Stack/netwar-con</a>
       </p>
-
       <br/>
-
-      
     </div>
     
   </body>
