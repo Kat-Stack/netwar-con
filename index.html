@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <!-- light: the eye/intro is a light "paper" design; matches :root{color-scheme:light} in psyop.css.
+  <!-- light: the eye/intro is a light "paper" design; matches :root{color-scheme:light} in puzzle.css.
        (was "dark", which made Firefox paint a black canvas + dark UI chrome before the CSS applied) -->
   <meta name="color-scheme" content="light" />
   <title>INFOHAZARD</title>
@@ -17,7 +17,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" />
-  <link rel="stylesheet" href="psyop.css" />
+  <!-- puzzle.css = the eye/triangle/heart gate · landing.css = the reveal. Split for legibility;
+       puzzle first so its base rules load before the reveal overrides. -->
+  <link rel="stylesheet" href="puzzle.css" />
+  <link rel="stylesheet" href="landing.css" />
 </head>
 <body>
   <!-- ░░░ THE EYE (exact gate eye) ░░░ -->
@@ -244,6 +247,9 @@
   </button>
 
   <canvas id="boom" aria-hidden="true"></canvas>
-  <script src="psyop.js"></script>
+  <!-- puzzle.js = the eye/heart gate · landing.js = the reveal. puzzle first: it owns the audio
+       engine + the window.PSYOP bridge that landing.js hooks into (and the ?reveal skip uses). -->
+  <script src="puzzle.js"></script>
+  <script src="landing.js"></script>
 </body>
 </html>
