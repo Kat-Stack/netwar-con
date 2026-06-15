@@ -12,8 +12,8 @@ Join the event Discord (this is for both "upcoming players" and those working in
 
 ### Appendix / WIP writeups & videos
 
-[Appendix.md](./docs/Appendix.md)
-[Game.md](./docs/Game.md)
+- [Appendix.md](./docs/Appendix.md)
+- [Game.md](./docs/Game.md)
 
 Initial June 1st announcement - https://defenderofthebasic.substack.com/p/the-last-psyop
 
