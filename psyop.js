@@ -143,11 +143,12 @@
   }
 
   function applyIntensity(t) {
+    if (typeof clicking !== 'undefined' && clicking) return;   // click sequence owns the visuals
     if (blessed) {
       for (let i = 0; i < 4; i++) irisStops[i].setAttribute('stop-color', PINK[i]);
       pupil.setAttribute('r', '23');
       gaze.style.filter = 'drop-shadow(0 0 14px #ff8fd0)';
-      root.style.setProperty('--dread', '0'); hazard.style.transform = '';
+      root.style.setProperty('--dread', '0'); if (typeof redTri !== 'undefined') redTri.setAttribute('opacity', '0'); hazard.style.transform = '';
       return;
     }
     const ct = Math.min(1, t);
@@ -155,11 +156,156 @@
     // round pupil; widens (and accelerates) with fear — widest when the held heart nears the eye
     pupil.setAttribute('r', (20 + Math.pow(ct, 1.4) * 24).toFixed(1));
     gaze.style.filter = `drop-shadow(0 0 ${(6 + t * 22).toFixed(0)}px ${toHex(mix(GLOW_COOL, GLOW_HOT, ct))})`;
-    root.style.setProperty('--dread', Math.min(0.9, t * 0.6 + (dragging ? 0.18 : 0)).toFixed(3));
+    if (!busy) {   // proximity glow; while busy (the click pulse) the pulse owns the red via style.opacity
+      redTri.style.opacity = '';
+      redTri.setAttribute('opacity', Math.min(0.85, t * 0.6 + (dragging ? 0.18 : 0)).toFixed(3));
+    }
     const j = t * t * 10 + (dragging ? 6 : 0);     // shakier while the heart is held
     if (j > 0.8) hazard.style.transform = `translate(${((Math.random() - .5) * j).toFixed(1)}px,${((Math.random() - .5) * j).toFixed(1)}px)`;
     else hazard.style.transform = '';
   }
+
+  /* ░░░ DEMO extras: triangle-contained red glow · casino reel landing on the eye · click→pulsing red "i" + rising beeps ░░░ */
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const svgDefs = hazard.querySelector('defs');
+  const TRI_PTS = '300,46 542,498 58,498';
+
+  // (a) red glow that STAYS INSIDE the triangle — it's a triangle-shaped fill, so red can't leak out/to the sides
+  const rgGrad = document.createElementNS(SVGNS, 'radialGradient');
+  rgGrad.id = 'redGlowGrad';
+  rgGrad.setAttribute('cx', '50%'); rgGrad.setAttribute('cy', '70%'); rgGrad.setAttribute('r', '45%');
+  rgGrad.innerHTML =
+    '<stop offset="0%" stop-color="#ff2a00" stop-opacity="0.95"/>' +
+    '<stop offset="46%" stop-color="#cc0a00" stop-opacity="0.5"/>' +
+    '<stop offset="100%" stop-color="#5a0000" stop-opacity="0"/>';
+  svgDefs.appendChild(rgGrad);
+  const redTri = document.createElementNS(SVGNS, 'polygon');
+  redTri.setAttribute('points', TRI_PTS);
+  redTri.setAttribute('fill', 'url(#redGlowGrad)');
+  redTri.setAttribute('opacity', '0');
+  redTri.setAttribute('pointer-events', 'none');
+  $('triangle').after(redTri);   // above the yellow triangle fill, below the eye → eye stays visible on top
+
+  // the eye parts we flatten on click/bless (flat fills, no shine)
+  const irisC = $('irisC'), scleraE = $('scleraE'), triEl = $('triangle');
+
+  // (b) the mark over the pupil — a red "i" (on click) that morphs into a pink heart (on bless).
+  //     it lives INSIDE #gaze so it tracks and stays centred in the pupil as the eye looks around.
+  const RI_I = '<circle cx="300" cy="346.5" r="3.8" fill="#ff3b1a"/><rect x="296.6" y="351.3" width="6.8" height="14.4" rx="3.4" fill="#ff3b1a"/>';
+  const RI_HEART = '<path d="M300 367 C316 353 311 340 300 348 C289 340 284 353 300 367 Z" fill="#ff8fd0"/>';
+  const redi = document.createElementNS(SVGNS, 'g');
+  redi.id = 'redi'; redi.setAttribute('pointer-events', 'none');
+  redi.innerHTML = RI_I;
+  redi.style.opacity = '0';
+  redi.style.transformBox = 'fill-box'; redi.style.transformOrigin = 'center';
+  gaze.appendChild(redi);   // inside #gaze → moves with the pupil
+  let clicking = false;   // while a click/bless sequence runs, the per-frame applyIntensity stands down
+
+  // (c) tasteful SFX — all synthesized (no asset files), soft, and only audible after a user
+  //     gesture (browser autoplay policy). A master gain keeps everything quiet; a gentle lowpass
+  //     warms it. Nothing loops or plays ambiently — sound only on deliberate interactions.
+  let audioCtx = null, master = null, soundOn = true;   // master sound switch (music + SFX)
+  function audio() {
+    try {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        master = audioCtx.createGain(); master.gain.value = 0.5;
+        const lp = audioCtx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5200;
+        master.connect(lp); lp.connect(audioCtx.destination);
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    } catch (e) { return null; }
+  }
+  // one soft enveloped tone; optional pitch glide to `to`
+  function tone(freq, dur, vol, type, to, delay) {
+    if (!soundOn) return;
+    const ac = audio(); if (!ac) return;
+    const t = ac.currentTime + (delay || 0);
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type || 'sine'; o.frequency.setValueAtTime(freq, t);
+    if (to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
+    o.connect(g); g.connect(master);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + Math.min(0.03, dur * 0.3));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.start(t); o.stop(t + dur + 0.04);
+  }
+  // the click "loading" beeps (square, a bit louder — it's the alarm)
+  function beep(freq, dur, vol) { tone(freq, dur, vol, 'square'); }
+  const sfx = {
+    wake()  { tone(180, 0.5, 0.05, 'sine', 300); tone(360, 0.5, 0.025, 'triangle', 600); },   // low awakening swell
+    grab()  { tone(520, 0.16, 0.08, 'sine', 760); },                                          // soft pickup
+    drop()  { tone(360, 0.16, 0.05, 'sine', 220); },                                          // soft put-down
+    twinkle(){ tone(1300 + Math.random() * 900, 0.09, 0.022, 'triangle'); },                  // faint sparkle
+    bless() { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, 0.5, 0.07, 'sine', null, i * 0.11)); }, // C-E-G-C chime
+    bloom() { tone(196, 0.7, 0.09, 'sine', 90); tone(784, 0.5, 0.04, 'triangle', 1200); },    // warm pop for the heart burst
+    reveal(){ tone(110, 1.6, 0.06, 'sine'); tone(164.81, 1.6, 0.045, 'sine'); tone(220, 1.6, 0.03, 'triangle'); }, // low ominous pad
+    land()  { tone(880, 0.12, 0.07, 'square'); tone(1318.5, 0.22, 0.08, 'square', null, 0.1); },  // reel landing ding (post-gesture)
+  };
+  // the lovepill puzzle SFX: four "unlock-step" sounds layer into a chord as the eye fills, then
+  // 5.wav is the final unlock for the heart burst (used by the bless / pink-cascade sequence)
+  const PUZZLE = ['assets/sfx/1.wav', 'assets/sfx/2.wav', 'assets/sfx/3.wav', 'assets/sfx/4.wav', 'assets/sfx/5.wav']
+    .map((s) => { const a = new Audio(s); a.preload = 'auto'; return a; });
+  function puzzle(i) { if (!soundOn) return; try { const a = PUZZLE[i]; if (a) { a.currentTime = 0; a.play().catch(() => {}); } } catch (e) {} }
+
+  // (d) the OPENING: large hazard symbols flip in the CENTRE of the triangle — ☣ → ☢ → eye (the 3rd flip)
+  const eyeVis = [hazard.querySelector('g[clip-path="url(#eyeClip)"]'), $('rim'), $('crease')].filter(Boolean);
+  let spinning = true;
+  const EYE_CX = 300, EYE_CY = 355;                  // the pupil / eye centre (the flip lands here)
+  // per-glyph placement, dialed in via demo_test.html (each symbol's optical centre/size differs)
+  const SYM_CFG = {
+    '☣': { cx: 298, cy: 305, size: 334 },
+    '☢': { cx: 301, cy: 328, size: 340 },
+  };
+  const flipSym = document.createElementNS(SVGNS, 'text');
+  flipSym.id = 'flipSym';
+  flipSym.setAttribute('x', EYE_CX); flipSym.setAttribute('y', EYE_CY);
+  flipSym.setAttribute('text-anchor', 'middle');     // (no dominant-baseline — its emoji metrics differ per browser)
+  flipSym.setAttribute('fill', '#0c0c0c');
+  hazard.appendChild(flipSym);
+  // set a glyph at its tuned centre/size, then fine-centre by ACTUAL rendered bounds (cross-browser)
+  function setFace(ch) {
+    const c = SYM_CFG[ch] || { cx: 300, cy: 342, size: 248 };
+    flipSym.textContent = ch;
+    flipSym.setAttribute('font-size', c.size);
+    flipSym.setAttribute('x', c.cx); flipSym.setAttribute('y', c.cy);
+    try { const bb = flipSym.getBBox(); flipSym.setAttribute('y', (c.cy + (c.cy - (bb.y + bb.height / 2))).toFixed(1)); } catch (e) {}
+  }
+  // horizontal "card flip" via scaleX (transform attribute → works on every engine, like the lid blink)
+  const sx = (el, s) => el.setAttribute('transform', `translate(${EYE_CX} ${EYE_CY}) scale(${s.toFixed(3)} 1) translate(${-EYE_CX} ${-EYE_CY})`);
+  const sxEye = (s) => eyeVis.forEach((el) => sx(el, s));
+  const easeIO = (p) => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2);
+  function anim(set, from, to, dur, onEnd) {
+    const t0 = performance.now();
+    (function f(now) {
+      const p = Math.min(1, (now - t0) / dur);
+      set(from + (to - from) * easeIO(p));
+      if (p < 1) requestAnimationFrame(f); else onEnd && onEnd();
+    })(t0);
+  }
+  function startSpin() {
+    eyeVis.forEach((el) => { el.style.opacity = '0'; }); sxEye(0);   // eye hidden until the 3rd flip
+    setFace('☣'); sx(flipSym, 0);
+    const HALF = 210, HOLD = 360;
+    const setSym = (s) => sx(flipSym, s);
+    anim(setSym, 0, 1, HALF, () => {                                  // flip 1 — biohazard appears
+      setTimeout(() => anim(setSym, 1, 0, HALF, () => {               // flip 2 — to radioactive
+        setFace('☢');
+        anim(setSym, 0, 1, HALF, () => {
+          setTimeout(() => anim(setSym, 1, 0, HALF, () => {           // flip 3 — to the eye
+            flipSym.remove(); sfx.land();
+            eyeVis.forEach((el) => { el.style.opacity = '1'; });
+            anim(sxEye, 0, 1, HALF + 50, () => {
+              eyeVis.forEach((el) => el.removeAttribute('transform'));  // identity → lid/gaze resume normally
+              spinning = false;
+            });
+          }), HOLD);
+        });
+      }), HOLD);
+    });
+  }
+  startSpin();
 
   (function tick() {
     intensity += ((blessed ? 0 : targetInt) - intensity) * 0.12;
@@ -241,21 +387,35 @@
     })(t0);
   }
 
-  /* ---- blessing: double blink → heart pupil → explosion → reveal ---- */
+  /* ---- blessing: bubblegum-pink floods in (iris → sclera → triangle) with the "i" as a heart,
+     RISING tones; when the pink fills the triangle, the heart bursts and we cross to The Last Psyop ---- */
   function bless() {
-    if (blessed) return; blessed = true; busy = true;
+    if (blessed) return; blessed = true; busy = true; clicking = true;
+    stopShimmer();
     heart.classList.remove('dragging'); heart.textContent = '❤️'; heart.style.left = ''; heart.style.top = '';
-    const start = performance.now(), DUR = 1200;
-    (function anim(now) {
-      const p = Math.min(1, (now - start) / DUR);
-      const o = Math.abs(1 - 2 * ((p * 2) % 1));            // two blinks
-      lid.setAttribute('transform', `translate(${EX} ${EY}) scale(1 ${o.toFixed(3)}) translate(${-EX} ${-EY})`);
-      if (p < 1) requestAnimationFrame(anim); else { openness = 1; busy = false; }
-    })(start);
-    setTimeout(() => { pupil.setAttribute('mask', 'url(#heartMask)'); body.classList.add('blessed'); }, DUR * 0.75);
-    setTimeout(() => { explode(); reveal(); }, DUR);
+    tgx = tgy = gx = gy = 0; targetInt = intensity = 0;
+    gaze.style.filter = 'none'; redTri.style.opacity = '0';
+    pupil.removeAttribute('mask'); pupil.setAttribute('r', '22'); pupil.style.fill = '#0a0608';
+    redi.innerHTML = RI_HEART; redi.style.opacity = '1'; puzzle(0);   // the "i" becomes a heart (1st unlock sound)
+    [irisC, scleraE, triEl].forEach((el) => { el.style.transition = 'fill .16s linear'; });
+    const PINK = '#ff8fd0';
+    const STEPS = [irisC, scleraE, triEl];                            // pink fills section by section
+    let i = 0;
+    (function step() {
+      if (i >= STEPS.length) { puzzle(4); explode(); reveal(); return; }   // triangle full → burst + UNLOCK sound + transition
+      const el = STEPS[i]; const last = i === STEPS.length - 1;
+      puzzle(i + 1);                                                  // lovepill unlock-step sounds (2,3,4) layer up
+      el.style.fill = PINK; i++;
+      redi.style.transition = 'none'; redi.style.opacity = '1'; redi.style.transform = 'scale(1.22)';
+      requestAnimationFrame(() => {
+        redi.style.transition = 'opacity .3s ease, transform .3s ease';
+        redi.style.opacity = '1'; redi.style.transform = 'scale(1)';
+      });
+      setTimeout(step, last ? 460 : 360);
+    })();
   }
   function reveal() {
+    document.title = 'Our Last Psyop';
     body.classList.add('revealed');
     document.documentElement.classList.add('revealed');   // dark root → no white showing on overscroll
     // the reveal is gesture-driven, so this play() is allowed even if autoplay was deferred
@@ -268,7 +428,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
       // only fade the text in once the LED font + video frame are ready, so the title never flashes
       // in the fallback font and the backdrop is already painted
-      assetsReady.finally(() => requestAnimationFrame(() => revealEl.classList.add('show')));
+      assetsReady.finally(() => requestAnimationFrame(() => { revealEl.classList.add('show'); sfx.reveal(); }));
     }, 1000);
   }
 
@@ -288,37 +448,79 @@
   /* ---- unified pointer handling (mouse + touch) ---- */
   let lastSpX = 0, lastSpY = 0, pdown = false, downX = 0, downY = 0, moved = false;
   const moveHeart = (x, y) => { heart.style.left = x + 'px'; heart.style.top = y + 'px'; };
+  // fairy-dust shimmer while holding the heart — sweet bell sparkles that quicken + swell as the
+  // heart nears the eye and slow + soften as it drifts away
+  // a sweet music-box twinkle: a note from a major-pentatonic scale (always consonant) as a soft
+  // sine bell + a quiet octave shimmer — warm, not the old squeaky high random tones
+  const PENTA = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.51, 1567.98];
+  function fairy(vol) {
+    const f = PENTA[(Math.random() * PENTA.length) | 0];
+    tone(f, 0.55, vol, 'sine');                 // gentle bell-like decay
+    tone(f * 2, 0.4, vol * 0.35, 'sine', null, 0.01);   // soft octave shimmer
+  }
+  let shimmerT = 0;
+  function startShimmer() {
+    clearTimeout(shimmerT);
+    (function tickShimmer() {
+      if (!dragging) return;
+      const ec = eyeCenterScreen(), hc = heartCenterScreen();
+      const t = Math.min(1, Math.hypot(hc.x - ec.x, hc.y - ec.y) / 460);   // 0 = on the eye, 1 = far
+      fairy(0.34 - t * 0.22);                           // audible + warm; louder near the eye
+      shimmerT = setTimeout(tickShimmer, 150 + t * 360);  // faster near, slower far
+    })();
+  }
+  function stopShimmer() { clearTimeout(shimmerT); }
   function grab(x, y) {
-    dragging = true; woken = true;
+    const first = !dragging;
+    dragging = true; woken = true;                       // set BEFORE startShimmer so its loop runs
+    if (first) { sfx.grab(); startShimmer(); }
     heart.classList.add('dragging'); heart.textContent = '💖';
     lastSpX = x; lastSpY = y; targetInt = Math.max(targetInt, 0.85);
     moveHeart(x, y);
   }
-  const dropHeart = () => { heart.classList.remove('dragging'); heart.textContent = '❤️'; heart.style.left = ''; heart.style.top = ''; };
-  function alarmAndGo() {                         // tapping the eye: it flares red + the "i" lights up, then the rabbit hole
-    busy = true; woken = true;
-    document.body.classList.add('alarm');
-    targetInt = 1; intensity = Math.max(intensity, 0.7);
+  const dropHeart = () => { stopShimmer(); sfx.drop(); heart.classList.remove('dragging'); heart.textContent = '❤️'; heart.style.left = ''; heart.style.top = ''; };
+  function alarmAndGo() {                         // tap the eye: red floods in — iris, then sclera, then triangle
+    if (busy || spinning) return;
+    busy = true; clicking = true; woken = true;   // clicking → applyIntensity stands down; we own the visuals
+    tgx = tgy = gx = gy = 0; targetInt = intensity = 0;
+    gaze.style.filter = 'none';                   // no shine
+    redTri.style.opacity = '0';                   // the proximity glow is off; this is flat fills only
+    pupil.removeAttribute('mask'); pupil.setAttribute('r', '22'); pupil.style.fill = '#070605';
+    [irisC, scleraE, triEl].forEach((el) => { el.style.transition = 'fill .16s linear'; });
+    const RED = '#d60000';
     const url = LINKS[(Math.random() * LINKS.length) | 0];
-    setTimeout(() => {
-      // reset to the calm resting state RIGHT BEFORE leaving — so the snapshot mobile
-      // browsers cache (and restore on Back) is a normal, re-clickable eye, not a frozen red one
-      body.classList.remove('alarm');
-      busy = false; pdown = false; dragging = false; moved = false; woken = false;
-      targetInt = 0; intensity = 0; tgx = 0; tgy = 0;
-      applyIntensity(0);
-      window.location.href = url;
-    }, 520);
+    const STEPS = [                               // pulse 1 → iris · pulse 2 → sclera · pulse 3 → triangle
+      { f: 784, d: 0.13, v: 0.17, el: irisC },    // DESCENDING pitch (alarm winding down)
+      { f: 523, d: 0.14, v: 0.21, el: scleraE },
+      { f: 330, d: 0.34, v: 0.34, el: triEl },
+    ];
+    let i = 0;
+    (function step() {
+      if (i >= STEPS.length) { setTimeout(() => { window.location.href = url; }, 380); return; }
+      const s = STEPS[i++], last = i >= STEPS.length;
+      beep(s.f, s.d, s.v);
+      s.el.style.fill = RED;                      // flat red fills in
+      // the "i" pulses bright→dim, scaling only a hair so it stays INSIDE the pupil
+      redi.style.transition = 'none'; redi.style.opacity = '1'; redi.style.transform = 'scale(1.12)';
+      requestAnimationFrame(() => {
+        redi.style.transition = 'opacity .28s ease, transform .28s ease';
+        redi.style.opacity = last ? '1' : '0.5'; redi.style.transform = 'scale(1)';
+      });
+      setTimeout(step, last ? 380 : 300);
+    })();
   }
 
+  let firstWake = true;
   window.addEventListener('pointerdown', (e) => {
-    if (blessed) return;
+    if (blessed || spinning) return;
+    audio();   // unlock the audio context inside this user gesture so later SFX can play
+    if (firstWake) { firstWake = false; sfx.wake(); }
     pdown = true; moved = false; downX = e.clientX; downY = e.clientY;
     if (overHeart(e.clientX, e.clientY)) grab(e.clientX, e.clientY);                 // tap / press the heart
     else { woken = true; updateGaze(e.clientX, e.clientY); updateAnger(e.clientX, e.clientY); }  // any tap wakes it → eye drifts toward the tap
   });
   window.addEventListener('pointermove', (e) => {
-    if (blessed) return;
+    if (blessed || spinning || busy) return;   // freeze the gaze during the click/bless cascade
     if (!moved && Math.hypot(e.clientX - downX, e.clientY - downY) > 8) moved = true;
     if (!dragging && pdown && overHeart(e.clientX, e.clientY)) grab(e.clientX, e.clientY);   // swipe past the heart grabs it
     const awake = updateGaze(e.clientX, e.clientY);                                  // eye locks onto the moving finger
@@ -328,7 +530,7 @@
     } else if (awake) updateAnger(e.clientX, e.clientY);
   });
   window.addEventListener('pointerup', (e) => {
-    if (blessed) { pdown = false; return; }
+    if (blessed || spinning) { pdown = false; return; }
     if (dragging) {
       dragging = false;
       if (overEye(e.clientX, e.clientY)) bless();          // let go over the eye → open the site
@@ -340,21 +542,30 @@
   });
   window.addEventListener('pointercancel', () => { if (dragging) { dragging = false; dropHeart(); } pdown = false; });
 
-  // back button / bfcache restore / returning to the tab: the page can come back showing stale
-  // red pixels (the cached snapshot was painted mid-alarm). Forcibly restore the calm resting state
-  // AND repaint now via applyIntensity(0) — removing an already-removed class wouldn't repaint.
+  // back button / bfcache restore: the page may come back frozen mid-alarm (red eye, busy=true).
+  // reset to the calm resting state so a fresh tap fires alarmAndGo() again → a new rabbit hole.
+  // forcibly restore a clean, re-clickable RESTING eye on return (bfcache restore / tab re-focus),
+  // and repaint now — so a click/bless that left it red or pink never persists when you come back
   function resetEye() {
     if (blessed) return;
     body.classList.remove('alarm');
-    busy = false; pdown = false; dragging = false; moved = false; woken = false;
-    dropHeart();
+    busy = false; pdown = false; dragging = false; moved = false; woken = false; spinning = false; clicking = false;
+    dropHeart(); stopShimmer();
     targetInt = 0; intensity = 0; tgx = 0; tgy = 0; gx = 0; gy = 0;
     root.style.setProperty('--dread', '0');
+    pupil.setAttribute('mask', 'url(#iMask)'); pupil.style.fill = ''; gaze.style.filter = '';
+    redi.innerHTML = RI_I;
+    redi.style.transition = 'none'; redi.style.opacity = '0'; redi.style.transform = 'scale(1)';
+    redTri.style.opacity = ''; redTri.setAttribute('opacity', '0');
+    [irisC, scleraE, triEl].forEach((el) => { el.style.transition = 'none'; el.style.fill = ''; el.removeAttribute('transform'); });
+    if (flipSym.isConnected) flipSym.remove();
+    eyeVis.forEach((el) => { el.style.transition = 'none'; el.style.opacity = '1'; el.removeAttribute('transform'); });
     applyIntensity(0);   // force the resting visuals immediately (don't wait for the rAF tick)
   }
-  window.addEventListener('pageshow', resetEye);
+  // only reset on a bfcache RESTORE (e.persisted) — a fresh load must let the opening flip play
+  window.addEventListener('pageshow', (e) => { if (e.persisted) resetEye(); });
   window.addEventListener('pagehide', resetEye);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) resetEye(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !spinning) resetEye(); });
 
   /* ---- the feature video at the bottom: autoplay WITH sound when scrolled into view, centre
      play/pause toggle, bottom-left mute. The page already has user activation from the heart-drag,
@@ -409,11 +620,11 @@
     io.observe(v);
   })();
 
-  /* ---- background muzak for The Last Psyop: fades in on reveal; elegant top-right toggle ---- */
+  /* ---- background muzak (fades in on reveal) + ONE top-right toggle for music & SFX ---- */
   const bgm = $('bgm'), bgmBtn = $('bgm-toggle');
-  let bgmWanted = true, bgmFadeT = 0;
+  let bgmFadeT = 0;
   function bgmFadeIn() {
-    if (!bgm || !bgmWanted) return;
+    if (!bgm || !soundOn) return;
     try { bgm.volume = 0; bgm.play().catch(() => {}); } catch (e) { return; }
     clearInterval(bgmFadeT);
     bgmFadeT = setInterval(() => {                 // ~2s ramp to a soft background level
@@ -422,24 +633,40 @@
     }, 50);
   }
   if (bgmBtn) bgmBtn.addEventListener('click', () => {
-    bgmWanted = !bgmWanted;
-    bgmBtn.classList.toggle('is-off', !bgmWanted);
-    bgmBtn.setAttribute('aria-pressed', String(bgmWanted));
-    if (bgmWanted) bgmFadeIn(); else if (bgm) { clearInterval(bgmFadeT); bgm.pause(); }
+    soundOn = !soundOn;                            // master switch: music + all SFX (tone()/puzzle() check it)
+    bgmBtn.classList.toggle('is-off', !soundOn);
+    bgmBtn.setAttribute('aria-pressed', String(soundOn));
+    if (soundOn) bgmFadeIn(); else if (bgm) { clearInterval(bgmFadeT); bgm.pause(); }
   });
 
-  // pause all audio (muzak + the feature video) when the tab/page is hidden; resume on return
+  // pause music + feature video + the hold shimmer when the tab/page is hidden; resume on return
   const fvid = document.querySelector('.vfeature__vid');
   let bgmWasOn = false, fvWasOn = false;
   function pauseMedia() {
     bgmWasOn = !!(bgm && !bgm.paused); fvWasOn = !!(fvid && !fvid.paused);
-    clearInterval(bgmFadeT); if (bgm) bgm.pause(); if (fvid) fvid.pause();
+    clearInterval(bgmFadeT); if (bgm) bgm.pause(); if (fvid) fvid.pause(); stopShimmer();
   }
   function resumeMedia() {
-    if (bgm && bgmWasOn && bgmWanted) bgm.play().catch(() => {});
+    if (bgm && bgmWasOn && soundOn) bgm.play().catch(() => {});
     if (fvid && fvWasOn) fvid.play().catch(() => {});
   }
   document.addEventListener('visibilitychange', () => { if (document.hidden) pauseMedia(); else resumeMedia(); });
   window.addEventListener('pagehide', pauseMedia);
 
+  /* ---- settings panel (gear) + the "eternal september" scrolling separator ---- */
+  const esTrack = $('es-track');
+  if (esTrack) {
+    const run = 'eternal september · '.repeat(18);   // duplicated for a seamless -50% loop
+    esTrack.innerHTML = '<span class="es-run">' + run + '</span><span class="es-run">' + run + '</span>';
+  }
+
+    /// Allow the puzzle to be skipped
+
+    if (location.search.includes('reveal')) {
+      blessed = true;
+      reveal();
+    }
+
 })();
+
+

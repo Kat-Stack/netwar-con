@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="color-scheme" content="dark" />
   <title>INFOHAZARD</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-16x16.png">
   <!-- preload the reveal assets so "The Last Psyop" fades in seamlessly: the LED font and
        war-room photo live in hidden elements, so without this they'd only start loading at
        reveal time (causing the wrong-font flash + black-then-photo pop). -->
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-16x16.png">
   <link rel="preload" href="assets/LEDLIGHT.otf" as="font" type="font/otf" crossorigin />
   <link rel="preload" href="assets/revbg.mp4" as="video" type="video/mp4" />
   <!-- classic serifs for the elegant reveal — Cormorant Garamond (display) + EB Garamond (body) -->
@@ -53,24 +53,26 @@
       <polygon id="triangle" class="tri" points="300,46 542,498 58,498"
                fill="none" stroke="#eaff00" stroke-width="14" stroke-linejoin="round" />
 
-      <!-- eyeball: clipped to the almond, opened/closed by the inner #lid group -->
-      <g clip-path="url(#eyeClip)">
-        <g id="lid">
-          <ellipse id="scleraE" cx="300" cy="355" rx="120" ry="68" fill="url(#sclera)" />
-          <g id="gaze">
-            <circle id="irisC" cx="300" cy="355" r="47" fill="url(#iris)" />
-            <circle id="pupil" cx="300" cy="355" r="20" fill="#040403" mask="url(#iMask)" />
-            <circle id="hi" cx="285" cy="340" r="7.5" fill="#fffbe6" opacity="0.8" />
+      <!-- the whole eye (visuals + hit area) scaled to 137% about its centre; the flip/gaze/blink
+           operate on the inner groups and compose with this -->
+      <g id="eyeAll" transform="translate(300 355) scale(1.37) translate(-300 -355)">
+        <!-- eyeball: clipped to the almond, opened/closed by the inner #lid group -->
+        <g clip-path="url(#eyeClip)">
+          <g id="lid">
+            <ellipse id="scleraE" cx="300" cy="355" rx="120" ry="68" fill="url(#sclera)" />
+            <g id="gaze">
+              <circle id="irisC" cx="300" cy="355" r="47" fill="url(#iris)" />
+              <circle id="pupil" cx="300" cy="355" r="20" fill="#040403" mask="url(#iMask)" />
+              <circle id="hi" cx="285" cy="340" r="7.5" fill="#fffbe6" opacity="0.8" />
+            </g>
           </g>
         </g>
+        <path id="rim" class="rim" d="M 215 355 Q 300 281 385 355 Q 300 429 215 355 Z"
+              fill="none" stroke="#9bbf00" stroke-width="3" />
+        <path id="crease" class="crease" d="M 222 356 Q 300 361 378 356"
+              fill="none" stroke="#7d9a00" stroke-width="3" stroke-linecap="round" />
+        <ellipse id="eyeHit" cx="300" cy="355" rx="102" ry="82" fill="transparent" pointer-events="all" />
       </g>
-
-      <path id="rim" class="rim" d="M 215 355 Q 300 281 385 355 Q 300 429 215 355 Z"
-            fill="none" stroke="#9bbf00" stroke-width="3" />
-      <path id="crease" class="crease" d="M 222 356 Q 300 361 378 356"
-            fill="none" stroke="#7d9a00" stroke-width="3" stroke-linecap="round" />
-
-      <ellipse id="eyeHit" cx="300" cy="355" rx="102" ry="82" fill="transparent" pointer-events="all" />
     </svg>
   </main>
 
@@ -86,18 +88,18 @@
       <div class="lp-hero__inner">
         <h1 class="lp-title">The Last Psyop</h1>
         <h2 class="lp-event">The September Event</h2>
-        <p class="lp-tagline">A gain-of-function research &amp; deployment memetic hackathon.</p>
+        <p class="lp-tagline">A gain-of-function memetic research &amp; deployment hackathon. A memetic pandemic preparedness and prevention wargaming conference. An ASI alignment experiment; For Science!</p>
         <p class="lp-dates">The weekend of September 4&ndash;6, 2026</p>
       </div>
       <a class="apply" href="https://luma.com/psyop-hackathon" target="_blank" rel="noopener">Apply to Attend</a>
       <div class="lp-cue" aria-hidden="true">▼</div>
     </div>
 
-    <!-- ░ the photo blurs + lightens into the off-white paper here ░ -->
-    <div class="lp-veil" aria-hidden="true"></div>
-
     <!-- ░ THE PAPER — one continuous orange graph-paper sheet holding all the text sections ░ -->
     <div class="lp-paper">
+
+    <!-- ░ scrolling "eternal september" separator (toggled in settings) between hero and paper ░ -->
+    <div class="es-sep" aria-hidden="true"><div class="es-track" id="es-track"></div></div>
 
     <!-- ░ COPY — off-white paper, black serif text ░ -->
     <div class="lp-section lp-copy">
@@ -240,13 +242,13 @@
     </video>
   </div>
 
-  <!-- background muzak for The Last Psyop — fades in on reveal; elegant toggle at top-right -->
+  <!-- background muzak (fades in on reveal) + a single sound on/off toggle for music & SFX -->
   <audio id="bgm" loop preload="auto" src="assets/muzak.mp3"></audio>
-  <button id="bgm-toggle" class="bgm-toggle" type="button" aria-label="Toggle music" aria-pressed="true">
+  <button id="bgm-toggle" class="bgm-toggle" type="button" aria-label="Toggle sound" aria-pressed="true">
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path class="bgm-note" d="M9 18V6l10-2.2v11.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-      <ellipse class="bgm-note" cx="6.6" cy="18" rx="2.9" ry="2.3" fill="currentColor" />
-      <ellipse class="bgm-note" cx="16.6" cy="15.5" rx="2.9" ry="2.3" fill="currentColor" />
+      <path class="snd-spk" d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" />
+      <path class="snd-wave" d="M16 8.6a4 4 0 010 6.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      <path class="snd-wave" d="M18.6 6a7.5 7.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
       <line class="bgm-slash" x1="3.5" y1="20.5" x2="20.5" y2="3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
     </svg>
   </button>
