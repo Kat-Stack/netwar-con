@@ -414,7 +414,7 @@
       setTimeout(step, last ? 460 : 360);
     })();
   }
-  function reveal() {
+  function reveal(instant) {
     document.title = 'Our Last Psyop';
     body.classList.add('revealed');
     document.documentElement.classList.add('revealed');   // dark root → no white showing on overscroll
@@ -429,7 +429,7 @@
       // only fade the text in once the LED font + video frame are ready, so the title never flashes
       // in the fallback font and the backdrop is already painted
       assetsReady.finally(() => requestAnimationFrame(() => { revealEl.classList.add('show'); sfx.reveal(); }));
-    }, 1000);
+    }, instant ? 0 : 1000);
   }
 
   /* ---- sparkle trail ---- */
@@ -664,7 +664,7 @@
 
     if (location.search.includes('reveal')) {
       blessed = true;
-      reveal();
+      reveal(true);
     }
 
 })();

@@ -1,0 +1,30 @@
+ <!-- ░ FEATURE VIDEO — autoplays WITH sound when scrolled into view; custom controls ░ -->
+    <section class="lp-section lp-video">
+      <div class="vfeature">
+        <div class="vfeature__media">
+          <video class="vfeature__vid" loop playsinline preload="auto">
+            <source src="assets/feature.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <!-- centre play/pause -->
+        <button class="vfeature__center" type="button" aria-label="Play or pause">
+          <svg class="vf-ic vf-ic--play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+          <svg class="vf-ic vf-ic--pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.4v14H7zM13.6 5H17v14h-3.4z" /></svg>
+        </button>
+        <!-- bottom-left mute -->
+        <button class="vfeature__mute" type="button" aria-label="Mute or unmute">
+          <svg class="vf-ic vf-ic--on" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 9v6h4l5 4V5L8 9H4z" />
+            <path d="M16 8.6a4 4 0 010 6.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <path d="M18.6 6a7.5 7.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          <svg class="vf-ic vf-ic--off" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 9v6h4l5 4V5L8 9H4z" />
+            <path d="M16 9.5l5.5 5M21.5 9.5l-5.5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+        <!-- scrub bar — click / drag to seek back and forth -->
+        <div class="vfeature__bar" aria-label="Seek"><div class="vfeature__track"><div class="vfeature__played"></div></div></div>
+      </div>
+      <p class="vfeature__src"><a href="https://x.com/suntzugi/status/1881416582603391082?s=20" target="_blank" rel="noopener">source</a></p>
+    </section>

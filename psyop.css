@@ -120,7 +120,7 @@ body.revealed #revbg { display: block; }
   text-shadow: 0 2px 16px rgba(0,0,0,.7), 0 0 3px rgba(0,0,0,.5);
 }
 .lp-tagline {
-  font-family: var(--body); font-style: italic; font-size: clamp(15px, 2.2vw, 20px);
+  font-family: var(--body); font-size: clamp(15px, 2.2vw, 20px);
   color: #f3e7cb; margin: .4rem auto 0; max-width: 52ch; line-height: 1.45;
   text-shadow: 0 2px 16px rgba(0,0,0,.78), 0 0 2px rgba(0,0,0,.5);
 }
