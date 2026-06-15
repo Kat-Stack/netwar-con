@@ -32,6 +32,7 @@
   let openness = 1, gx = 0, gy = 0, tgx = 0, tgy = 0;   // start open & ready (no load-time blink)
   let intensity = 0, targetInt = 0;
   let blessed = false, dragging = false, busy = false, woken = false;
+  let heartX = 0, heartY = 0;                           // tracked drag position (avoids reading the heart's rect)
 
   // the rabbit holes the eye throws you into
   const LINKS = [
@@ -97,13 +98,29 @@
     return Promise.all([vidP, fontP]);
   })();
 
+  // Cached layout rects: the eye SVG and the resting heart don't move during the puzzle (the page
+  // can't scroll here), so reading getBoundingClientRect on every pointer-move forces a synchronous
+  // layout (jank). Cache them; invalidate on resize / orientation / scroll.
+  let _hazardR = null, _eyeR = null, _heartR = null;
+  const hazardR = () => _hazardR || (_hazardR = hazard.getBoundingClientRect());
+  const eyeR    = () => _eyeR    || (_eyeR    = eyeHit.getBoundingClientRect());
+  const heartR  = () => _heartR  || (_heartR  = heart.getBoundingClientRect());
+  const invalidateRects = () => { _hazardR = _eyeR = _heartR = null; };
+  addEventListener('resize', invalidateRects);
+  addEventListener('orientationchange', invalidateRects);
+  addEventListener('scroll', invalidateRects, { passive: true });
+
   const toSvg = (cx, cy) => {
-    const r = hazard.getBoundingClientRect();
+    const r = hazardR();
     const s = Math.min(r.width / 600, r.height / 560);
     return { x: (cx - r.left - (r.width - 600 * s) / 2) / s, y: (cy - r.top - (r.height - 560 * s) / 2) / s };
   };
-  const eyeCenterScreen = () => { const r = eyeHit.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
-  const heartCenterScreen = () => { const r = heart.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
+  const eyeCenterScreen = () => { const r = eyeR(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
+  // while held, the heart rides the pointer (we track heartX/Y) — use that, not its rect; at rest the cached rect is right
+  const heartCenterScreen = () => {
+    if (dragging) return { x: heartX, y: heartY };
+    const r = heartR(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  };
   // is an SVG-space point inside the warning triangle? (vertices A,B,C)
   function inTriangle(px, py) {
     const A = [300, 46], B = [542, 498], C = [58, 498];
@@ -113,11 +130,11 @@
   }
 
   /* ---- pointer helpers (mouse + touch unified) ---- */
-  const overRect = (el, x, y, m) => { const r = el.getBoundingClientRect(); return x >= r.left - m && x <= r.right + m && y >= r.top - m && y <= r.bottom + m; };
-  const overEye = (x, y) => overRect(eyeHit, x, y, 36);          // generous — for dropping the heart
-  const overHeart = (x, y) => overRect(heart, x, y, 14);   // tight — you must actually tap/touch the heart
+  const overRectC = (r, x, y, m) => x >= r.left - m && x <= r.right + m && y >= r.top - m && y <= r.bottom + m;
+  const overEye = (x, y) => overRectC(eyeR(), x, y, 36);          // generous — for dropping the heart
+  const overHeart = (x, y) => overRectC(heartR(), x, y, 14);   // tight — you must actually tap/touch the heart (always checked at rest)
   const onEye = (x, y) => {                                      // tight — the visible eye only (NOT the triangle)
-    const r = eyeHit.getBoundingClientRect();
+    const r = eyeR();
     const nx = (x - (r.left + r.width / 2)) / (r.width / 2 * 0.85);
     const ny = (y - (r.top + r.height / 2)) / (r.height / 2 * 0.85);
     return nx * nx + ny * ny <= 1;
@@ -142,27 +159,39 @@
     }
   }
 
+  // change-detection caches: tick() calls applyIntensity every frame, but at rest the intensity is
+  // flat — re-writing the iris stops, pupil radius and (costly) drop-shadow filter every frame just
+  // burns paint. Only write when the rounded value actually moves. resetEye() invalidates these.
+  let _aiCt = -1, _aiRed = -1, _aiJit = false, _aiBless = null;
   function applyIntensity(t) {
     if (typeof clicking !== 'undefined' && clicking) return;   // click sequence owns the visuals
     if (blessed) {
-      for (let i = 0; i < 4; i++) irisStops[i].setAttribute('stop-color', PINK[i]);
-      pupil.setAttribute('r', '23');
-      gaze.style.filter = 'drop-shadow(0 0 14px #ff8fd0)';
-      root.style.setProperty('--dread', '0'); if (typeof redTri !== 'undefined') redTri.setAttribute('opacity', '0'); hazard.style.transform = '';
+      if (_aiBless !== true) {                                 // paint the pink resting visuals once
+        _aiBless = true; _aiCt = -1; _aiRed = -1;
+        for (let i = 0; i < 4; i++) irisStops[i].setAttribute('stop-color', PINK[i]);
+        pupil.setAttribute('r', '23');
+        gaze.style.filter = 'drop-shadow(0 0 14px #ff8fd0)';
+        root.style.setProperty('--dread', '0');
+        if (typeof redTri !== 'undefined') redTri.setAttribute('opacity', '0');
+        if (_aiJit) { hazard.style.transform = ''; _aiJit = false; }
+      }
       return;
     }
-    const ct = Math.min(1, t);
-    for (let i = 0; i < 4; i++) irisStops[i].setAttribute('stop-color', toHex(mix(COOL[i], HOT[i], ct)));
-    // round pupil; widens (and accelerates) with fear — widest when the held heart nears the eye
-    pupil.setAttribute('r', (20 + Math.pow(ct, 1.4) * 24).toFixed(1));
-    gaze.style.filter = `drop-shadow(0 0 ${(6 + t * 22).toFixed(0)}px ${toHex(mix(GLOW_COOL, GLOW_HOT, ct))})`;
+    _aiBless = false;
+    const ct = Math.min(1, t), ctR = Math.round(ct * 256) / 256;
+    if (ctR !== _aiCt) {                                       // iris colour + pupil + glow only move with intensity
+      _aiCt = ctR;
+      for (let i = 0; i < 4; i++) irisStops[i].setAttribute('stop-color', toHex(mix(COOL[i], HOT[i], ctR)));
+      pupil.setAttribute('r', (20 + Math.pow(ctR, 1.4) * 24).toFixed(1));   // widens with fear
+      gaze.style.filter = `drop-shadow(0 0 ${(6 + ctR * 22).toFixed(0)}px ${toHex(mix(GLOW_COOL, GLOW_HOT, ctR))})`;
+    }
     if (!busy) {   // proximity glow; while busy (the click pulse) the pulse owns the red via style.opacity
-      redTri.style.opacity = '';
-      redTri.setAttribute('opacity', Math.min(0.85, t * 0.6 + (dragging ? 0.18 : 0)).toFixed(3));
+      const roR = Math.round(Math.min(0.85, t * 0.6 + (dragging ? 0.18 : 0)) * 256) / 256;
+      if (roR !== _aiRed) { _aiRed = roR; redTri.style.opacity = ''; redTri.setAttribute('opacity', roR.toFixed(3)); }
     }
     const j = t * t * 10 + (dragging ? 6 : 0);     // shakier while the heart is held
-    if (j > 0.8) hazard.style.transform = `translate(${((Math.random() - .5) * j).toFixed(1)}px,${((Math.random() - .5) * j).toFixed(1)}px)`;
-    else hazard.style.transform = '';
+    if (j > 0.8) { hazard.style.transform = `translate(${((Math.random() - .5) * j).toFixed(1)}px,${((Math.random() - .5) * j).toFixed(1)}px)`; _aiJit = true; }
+    else if (_aiJit) { hazard.style.transform = ''; _aiJit = false; }   // reset the shake once, not every idle frame
   }
 
   /* ░░░ DEMO extras: triangle-contained red glow · casino reel landing on the eye · click→pulsing red "i" + rising beeps ░░░ */
@@ -409,7 +438,7 @@
   function bless() {
     if (blessed) return; blessed = true; busy = true; clicking = true;
     stopShimmer();
-    heart.classList.remove('dragging'); heart.textContent = '❤️'; heart.style.left = ''; heart.style.top = '';
+    heart.classList.remove('dragging'); heart.textContent = '❤️'; heart.style.transform = ''; heart.style.left = ''; heart.style.top = '';
     tgx = tgy = gx = gy = 0; targetInt = intensity = 0;
     gaze.style.filter = 'none'; redTri.style.opacity = '0';
     pupil.removeAttribute('mask'); pupil.setAttribute('r', '22'); pupil.style.fill = '#0a0608';
@@ -464,7 +493,8 @@
 
   /* ---- unified pointer handling (mouse + touch) ---- */
   let lastSpX = 0, lastSpY = 0, pdown = false, downX = 0, downY = 0, moved = false;
-  const moveHeart = (x, y) => { heart.style.left = x + 'px'; heart.style.top = y + 'px'; };
+  // move via transform (GPU compositor) instead of left/top (which reflows every pointer-move)
+  const moveHeart = (x, y) => { heartX = x; heartY = y; heart.style.transform = `translate(${x}px,${y}px) translate(-50%,-50%)`; };
   // fairy-dust shimmer while holding the heart — sweet bell sparkles that quicken + swell as the
   // heart nears the eye and slow + soften as it drifts away
   // a sweet music-box twinkle: a note from a major-pentatonic scale (always consonant) as a soft
@@ -495,7 +525,7 @@
     lastSpX = x; lastSpY = y; targetInt = Math.max(targetInt, 0.85);
     moveHeart(x, y);
   }
-  const dropHeart = () => { stopShimmer(); sfx.drop(); heart.classList.remove('dragging'); heart.textContent = '❤️'; heart.style.left = ''; heart.style.top = ''; };
+  const dropHeart = () => { stopShimmer(); sfx.drop(); heart.classList.remove('dragging'); heart.textContent = '❤️'; heart.style.transform = ''; heart.style.left = ''; heart.style.top = ''; };
   function alarmAndGo() {                         // tap the eye: red floods in — iris, then sclera, then triangle
     if (busy || spinning) return;
     busy = true; clicking = true; woken = true;   // clicking → applyIntensity stands down; we own the visuals
@@ -577,6 +607,8 @@
     [irisC, scleraE, triEl].forEach((el) => { el.style.transition = 'none'; el.style.fill = ''; el.removeAttribute('transform'); });
     if (flipSym.isConnected) flipSym.remove();
     eyeVis.forEach((el) => { el.style.transition = 'none'; el.style.opacity = '1'; el.removeAttribute('transform'); });
+    invalidateRects();                         // layout may have changed while we were away
+    _aiCt = _aiRed = -1; _aiBless = null;      // force applyIntensity to repaint the resting visuals
     applyIntensity(0);   // force the resting visuals immediately (don't wait for the rAF tick)
   }
   // only reset on a bfcache RESTORE (e.persisted) — a fresh load must let the opening flip play.
