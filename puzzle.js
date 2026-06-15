@@ -267,10 +267,11 @@
   const eyeVis = [hazard.querySelector('g[clip-path="url(#eyeClip)"]'), $('rim'), $('crease')].filter(Boolean);
   let spinning = true;   // play the ☣ → ☢ → eye opening flip by default (re-enabled; see startSpin() below)
   const EYE_CX = 300, EYE_CY = 355;                  // the pupil / eye centre (the flip lands here)
-  // per-glyph placement, dialed in via demo_test.html (each symbol's optical centre/size differs)
+  // per-glyph size; the ink is centred on (cx, cy) by canvas measurement in setFace, so we aim the
+  // ink centre right at the eye centre (EYE_CX/EYE_CY) — the flip then lands exactly on the eye.
   const SYM_CFG = {
-    '☣': { cx: 298, cy: 305, size: 334 },
-    '☢': { cx: 301, cy: 328, size: 340 },
+    '☣': { cx: EYE_CX, cy: EYE_CY, size: 334 },
+    '☢': { cx: EYE_CX, cy: EYE_CY, size: 340 },
   };
   const SYM_FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif";
   const flipSym = document.createElementNS(SVGNS, 'text');
