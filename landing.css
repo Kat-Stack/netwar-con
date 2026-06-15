@@ -62,15 +62,14 @@ body.revealed #revbg { display: block; }
   color: #ffbe4d;
   text-shadow: 0 0 8px rgba(255,150,40,.45), 0 0 26px rgba(255,120,0,.28), 0 0 64px rgba(255,100,0,.16);
 }
-/* ── easter egg: Cmd/Ctrl+Shift+L swaps the "A" in LAST for the hero warning-eye (toggled in landing.js) ── */
-.lp-a { display: inline; }
-.lp-a-tri { display: none; }                 /* hidden until the toggle is on */
-.lp-title .lp-a-tri {                         /* sized to the LED cap height, seated on the baseline */
-  width: auto; height: .86em; vertical-align: -.085em; margin: 0 .015em;
-  filter: drop-shadow(0 0 7px rgba(255,150,40,.4));   /* faint glow so the sign sits in the neon title */
+/* ── easter egg: Cmd/Ctrl+Shift+L puts a cursor-tracking eye on the "A" in LAST (driven by landing.js) ── */
+.lp-a { position: relative; }                 /* anchor for the overlaid eye; the letter stays in flow */
+.lp-a-eye {
+  display: none; position: absolute; left: 50%; top: 54%;
+  width: .58em; height: auto; transform: translate(-50%, -50%); pointer-events: none;
+  filter: drop-shadow(0 0 5px rgba(255,150,40,.45));   /* faint glow so the eye sits in the neon title */
 }
-body.tri-a .lp-a-ltr { display: none; }       /* hide the letter… */
-body.tri-a .lp-a-tri { display: inline-block; }   /* …show the triangle-eye in its place */
+body.eye-a .lp-a-eye { display: block; }
 .lp-event {
   font-family: var(--serif); font-weight: 600; font-size: clamp(16px, 3vw, 25px);
   letter-spacing: .4em; text-indent: .4em; text-transform: uppercase;

@@ -171,11 +171,35 @@
     esTrack.innerHTML = '<span class="es-run">' + run + '</span><span class="es-run">' + run + '</span>';
   }
 
-  /* ---- easter egg: Cmd/Ctrl+Shift+L swaps the "A" in "The Last Psyop" for the warning-eye glyph ---- */
+  /* ---- easter egg: Cmd/Ctrl+Shift+L puts a cursor-tracking eye on the "A" in "The Last Psyop" ---- */
+  const setTitleEye = (function titleEye() {
+    const eye = document.querySelector('.lp-a-eye');
+    const gaze = eye && eye.querySelector('.lp-a-eye__gaze');
+    if (!eye || !gaze) return () => {};
+    let px = 0, py = 0, tgx = 0, tgy = 0, gx = 0, gy = 0, raf = 0, on = false;
+    const MAXX = 14, MAXY = 10, REACH = 240;   // iris drift (viewBox units) + how fast it maxes out (px)
+    function aim() {
+      const r = eye.getBoundingClientRect(); if (!r.width) return;   // 0 while the reveal is still hidden
+      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      const dx = px - cx, dy = py - cy, len = Math.hypot(dx, dy) || 1, reach = Math.min(1, len / REACH);
+      tgx = (dx / len) * MAXX * reach; tgy = (dy / len) * MAXY * reach;
+    }
+    function loop() {
+      gx += (tgx - gx) * 0.2; gy += (tgy - gy) * 0.2;            // ease toward the target so the eye glides
+      gaze.setAttribute('transform', `translate(${gx.toFixed(2)} ${gy.toFixed(2)})`);
+      raf = on ? requestAnimationFrame(loop) : 0;                // loop only while the eye is on
+    }
+    addEventListener('pointermove', (e) => { if (!on) return; px = e.clientX; py = e.clientY; aim(); }, { passive: true });
+    return (state) => {
+      on = state;
+      if (on) { if (!raf) raf = requestAnimationFrame(loop); }
+      else { tgx = tgy = gx = gy = 0; gaze.setAttribute('transform', 'translate(0 0)'); }   // recentre + stop
+    };
+  })();
   addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.code === 'KeyL' || e.key === 'l' || e.key === 'L')) {
       e.preventDefault();
-      body.classList.toggle('tri-a');
+      setTitleEye(body.classList.toggle('eye-a'));
     }
   });
 
