@@ -64,6 +64,7 @@
     'https://www.youtube.com/watch?v=g4XiKChyK7A',
     'https://www.youtube.com/watch?v=-gGLvg0n-uY',
     'https://www.youtube.com/watch?v=sjoad6gcRzs',
+    'https://youtu.be/FLUUUZWjfGk?si=grdQvVgIuB26P1BV&t=163',
     'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     'https://web.english.upenn.edu/~cavitch/pdf-library/Bernays_Propaganda.pdf',       // Bernays — Propaganda
     'https://en.wikipedia.org/wiki/Born_secret',
@@ -140,6 +141,7 @@
   // flat — re-writing the iris stops, pupil radius and (costly) drop-shadow filter every frame just
   // burns paint. Only write when the rounded value actually moves. resetEye() invalidates these.
   let _aiCt = -1, _aiRed = -1, _aiJit = false, _aiBless = null;
+  let _restoreFrames = 0;   // after a reset/bfcache-restore, re-assert the triangle's resting fill for ~0.6s
   function applyIntensity(t) {
     if (typeof clicking !== 'undefined' && clicking) return;   // click sequence owns the visuals
     if (blessed) {
@@ -257,7 +259,7 @@
 
   // (d) the OPENING: large hazard symbols flip in the CENTRE of the triangle — ☣ → ☢ → eye (the 3rd flip)
   const eyeVis = [hazard.querySelector('g[clip-path="url(#eyeClip)"]'), $('rim'), $('crease')].filter(Boolean);
-  let spinning = false;
+  let spinning = true;   // play the ☣ → ☢ → eye opening flip by default (re-enabled; see startSpin() below)
   const EYE_CX = 300, EYE_CY = 355;                  // the pupil / eye centre (the flip lands here)
   // per-glyph placement, dialed in via demo_test.html (each symbol's optical centre/size differs)
   const SYM_CFG = {
@@ -318,7 +320,7 @@
       }), HOLD);
     });
   }
-  //startSpin();
+  startSpin();   // the opening: biohazard → radioactive → eye flips into the triangle centre
 
   (function tick() {
     intensity += ((blessed ? 0 : targetInt) - intensity) * 0.12;
@@ -328,15 +330,16 @@
     gaze.setAttribute('transform', `translate(${gx.toFixed(2)} ${gy.toFixed(2)})`);
     crease.style.opacity = (1 - Math.min(1, openness * 1.25)).toFixed(3);
     applyIntensity(intensity);
-    // Resting-state self-heal: when no click/bless sequence owns the visuals, no alarm-reddened
-    // part should keep a stale inline fill. The iris recovers on its own (applyIntensity repaints it
-    // every frame); the triangle/sclera were cleared only once in resetEye(), so a Firefox bfcache
-    // restore that repaints the frozen red leaves the triangle stuck red. Clearing every frame here
-    // (only when actually set — a string read, no layout cost otherwise) guarantees a return to rest.
-    if (!clicking && !busy && !blessed) {
-      if (triEl.style.fill) triEl.style.fill = '';
-      if (scleraE.style.fill) scleraE.style.fill = '';
-      if (irisC.style.fill) irisC.style.fill = '';
+    // After a bfcache restore (Back from a rabbit hole) Firefox keeps painting the frozen alarm-red
+    // triangle even though resetEye() already cleared the style. CLEARING an inline fill doesn't
+    // reliably repaint in that path — the iris recovers only because applyIntensity actively re-SETS
+    // its gradient stops. So for a short window after a reset, re-assert the resting fill with an
+    // ALTERNATING value: a guaranteed value-change forces a real repaint every frame and flushes the
+    // stale red whenever Firefox finally composites the restored page. Gated so a fresh alarm wins.
+    if (_restoreFrames > 0 && !clicking && !busy && !blessed) {
+      _restoreFrames--;
+      const y = (_restoreFrames & 1) ? '#f2dd01' : '#f2dd00';   // 2 imperceptible yellows; settles on #f2dd00
+      triEl.style.fill = y; scleraE.style.fill = y;
     }
     requestAnimationFrame(tick);
   })();
@@ -568,6 +571,7 @@
     eyeVis.forEach((el) => { el.style.transition = 'none'; el.style.opacity = '1'; el.removeAttribute('transform'); });
     invalidateRects();                         // layout may have changed while we were away
     _aiCt = _aiRed = -1; _aiBless = null;      // force applyIntensity to repaint the resting visuals
+    _restoreFrames = 40;                       // ~0.6s of forced triangle repaints (beats Firefox's bfcache snapshot)
     applyIntensity(0);   // force the resting visuals immediately (don't wait for the rAF tick)
   }
   // only reset on a bfcache RESTORE (e.persisted) — a fresh load must let the opening flip play.
