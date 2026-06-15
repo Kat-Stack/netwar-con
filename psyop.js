@@ -270,7 +270,14 @@
     flipSym.textContent = ch;
     flipSym.setAttribute('font-size', c.size);
     flipSym.setAttribute('x', c.cx); flipSym.setAttribute('y', c.cy);
-    try { const bb = flipSym.getBBox(); flipSym.setAttribute('y', (c.cy + (c.cy - (bb.y + bb.height / 2))).toFixed(1)); } catch (e) {}
+    // Centre the ACTUAL rendered glyph box on (c.cx, c.cy). Emoji metrics differ per engine
+    // (Firefox renders ☣/☢ larger + shifted vs Chrome), so correcting Y only left them off-centre
+    // in Firefox — compensate on BOTH axes from the measured bounds → consistent across browsers.
+    try {
+      const bb = flipSym.getBBox();
+      flipSym.setAttribute('x', (c.cx + (c.cx - (bb.x + bb.width / 2))).toFixed(1));
+      flipSym.setAttribute('y', (c.cy + (c.cy - (bb.y + bb.height / 2))).toFixed(1));
+    } catch (e) {}
   }
   // horizontal "card flip" via scaleX (transform attribute → works on every engine, like the lid blink)
   const sx = (el, s) => el.setAttribute('transform', `translate(${EYE_CX} ${EYE_CY}) scale(${s.toFixed(3)} 1) translate(${-EYE_CX} ${-EYE_CY})`);

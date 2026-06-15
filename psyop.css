@@ -387,4 +387,10 @@ body.alarm #pupil { fill: #000; }
 body.alarm #gaze  { filter: drop-shadow(0 0 12px #ffe000) drop-shadow(0 0 30px #ff3000) drop-shadow(0 0 60px rgba(255,60,0,.7)) !important; }
 body.alarm #dread { opacity: .9 !important; }
 
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+/* Honour reduced-motion by stopping the AMBIENT loops only. The old `* { animation: none }` was
+   too broad: anything that forces reduced-motion in Firefox (privacy.resistFingerprinting / Tor /
+   the OS toggle) killed every animation — and disabling `.sparkle` mid-flight stops its animationend
+   from firing, so the sparkle nodes never self-remove (DOM leak). Scope it to the decorative loops. */
+@media (prefers-reduced-motion: reduce) {
+  .lp-cue, .es-track, .lp-emblem__link::after { animation: none !important; }
+}
