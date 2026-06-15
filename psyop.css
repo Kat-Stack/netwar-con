@@ -32,7 +32,10 @@ body.revealed {
 #hazard { width: min(92vw, 88vh, 660px); height: auto; flex: none; position: relative; z-index: 1; will-change: transform; }
 .tri { fill: #f2dd00; stroke: #0c0c0c; stroke-width: 14; transition: opacity .9s ease; }
 .rim { stroke: #0c0c0c; stroke-width: 7; }
-.crease { stroke: #0c0c0c; stroke-width: 7; stroke-linecap: round; }   /* the closed-lid line */
+/* the closed-lid line — starts hidden (the eye opens with no blink); JS fades it in only while the
+   lid closes. Without opacity:0 here it flashes across the eye on load in Firefox, whose first rAF
+   (which sets the opacity) fires a beat after first paint. */
+.crease { stroke: #0c0c0c; stroke-width: 7; stroke-linecap: round; opacity: 0; }
 #scleraE { fill: #f2dd00; }                                            /* eye blends into the sign… */
 #hi { fill: #fff7c0; opacity: .85; }
 body.blessed .tri { opacity: 0; }

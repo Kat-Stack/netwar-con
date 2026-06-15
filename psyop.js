@@ -569,8 +569,16 @@
     eyeVis.forEach((el) => { el.style.transition = 'none'; el.style.opacity = '1'; el.removeAttribute('transform'); });
     applyIntensity(0);   // force the resting visuals immediately (don't wait for the rAF tick)
   }
-  // only reset on a bfcache RESTORE (e.persisted) — a fresh load must let the opening flip play
-  window.addEventListener('pageshow', (e) => { if (e.persisted) resetEye(); });
+  // only reset on a bfcache RESTORE (e.persisted) — a fresh load must let the opening flip play.
+  // Firefox repaints the bfcache-frozen (red) frame AFTER pageshow fires, which re-reds the triangle
+  // right after resetEye() clears it. The eye self-corrects (the rAF tick repaints it every frame) but
+  // the triangle fill is cleared only once — so re-assert the reset on the next frames to win the race.
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    resetEye();
+    requestAnimationFrame(resetEye);
+    requestAnimationFrame(() => requestAnimationFrame(resetEye));
+  });
   window.addEventListener('pagehide', resetEye);
   document.addEventListener('visibilitychange', () => { if (!document.hidden && !spinning) resetEye(); });
 
