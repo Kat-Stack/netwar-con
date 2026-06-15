@@ -251,7 +251,7 @@
 
   // (d) the OPENING: large hazard symbols flip in the CENTRE of the triangle — ☣ → ☢ → eye (the 3rd flip)
   const eyeVis = [hazard.querySelector('g[clip-path="url(#eyeClip)"]'), $('rim'), $('crease')].filter(Boolean);
-  let spinning = true;
+  let spinning = false;
   const EYE_CX = 300, EYE_CY = 355;                  // the pupil / eye centre (the flip lands here)
   // per-glyph placement, dialed in via demo_test.html (each symbol's optical centre/size differs)
   const SYM_CFG = {
@@ -305,7 +305,7 @@
       }), HOLD);
     });
   }
-  startSpin();
+  //startSpin();
 
   (function tick() {
     intensity += ((blessed ? 0 : targetInt) - intensity) * 0.12;
