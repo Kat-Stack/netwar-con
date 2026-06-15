@@ -322,6 +322,16 @@
     gaze.setAttribute('transform', `translate(${gx.toFixed(2)} ${gy.toFixed(2)})`);
     crease.style.opacity = (1 - Math.min(1, openness * 1.25)).toFixed(3);
     applyIntensity(intensity);
+    // Resting-state self-heal: when no click/bless sequence owns the visuals, no alarm-reddened
+    // part should keep a stale inline fill. The iris recovers on its own (applyIntensity repaints it
+    // every frame); the triangle/sclera were cleared only once in resetEye(), so a Firefox bfcache
+    // restore that repaints the frozen red leaves the triangle stuck red. Clearing every frame here
+    // (only when actually set — a string read, no layout cost otherwise) guarantees a return to rest.
+    if (!clicking && !busy && !blessed) {
+      if (triEl.style.fill) triEl.style.fill = '';
+      if (scleraE.style.fill) scleraE.style.fill = '';
+      if (irisC.style.fill) irisC.style.fill = '';
+    }
     requestAnimationFrame(tick);
   })();
 
@@ -570,15 +580,9 @@
     applyIntensity(0);   // force the resting visuals immediately (don't wait for the rAF tick)
   }
   // only reset on a bfcache RESTORE (e.persisted) — a fresh load must let the opening flip play.
-  // Firefox repaints the bfcache-frozen (red) frame AFTER pageshow fires, which re-reds the triangle
-  // right after resetEye() clears it. The eye self-corrects (the rAF tick repaints it every frame) but
-  // the triangle fill is cleared only once — so re-assert the reset on the next frames to win the race.
-  window.addEventListener('pageshow', (e) => {
-    if (!e.persisted) return;
-    resetEye();
-    requestAnimationFrame(resetEye);
-    requestAnimationFrame(() => requestAnimationFrame(resetEye));
-  });
+  // resetEye() handles the immediate repaint; the tick() resting self-heal above is the guarantee
+  // against Firefox repainting the bfcache-frozen red frame a few frames after pageshow.
+  window.addEventListener('pageshow', (e) => { if (e.persisted) resetEye(); });
   window.addEventListener('pagehide', resetEye);
   document.addEventListener('visibilitychange', () => { if (!document.hidden && !spinning) resetEye(); });
 
