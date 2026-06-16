@@ -33,7 +33,11 @@
 <body>
   <!-- ░░░ THE EYE (exact gate eye) ░░░ -->
   <main id="hero">
+    <!-- size the SVG INLINE (mirrors #hazard in puzzle.css): a viewBox-only <svg> has no intrinsic
+         size, so before the CSS loads the browser stretches it to the container width (~1.8x) and it
+         visibly shrinks into place on the first frame. The inline width sizes it from the first byte. -->
     <svg id="hazard" viewBox="0 0 600 560" xmlns="http://www.w3.org/2000/svg"
+         style="width: min(92vw, 88vh, 660px); height: auto;"
          role="img" aria-label="Infohazard — the watching eye">
       <defs>
         <radialGradient id="iris" cx="50%" cy="48%" r="52%">
@@ -105,11 +109,11 @@
         <h1 class="lp-title">The L<span class="lp-a">a<svg class="lp-a-eye" viewBox="205 271 190 168" aria-hidden="true">
           <defs><clipPath id="lpAeyeClip" clipPathUnits="userSpaceOnUse"><path d="M 215 355 Q 300 281 385 355 Q 300 429 215 355 Z"/></clipPath></defs>
           <g clip-path="url(#lpAeyeClip)">
-            <path d="M 215 355 Q 300 281 385 355 Q 300 429 215 355 Z" fill="#f2dd00"/>
+            <path d="M 215 355 Q 300 281 385 355 Q 300 429 215 355 Z" fill="#ffbe4d"/>
             <g class="lp-a-eye__gaze">
-              <circle cx="300" cy="355" r="47" fill="#f2dd00" stroke="#0c0c0c" stroke-width="6"/>
+              <circle cx="300" cy="355" r="47" fill="#ffbe4d" stroke="#0c0c0c" stroke-width="6"/>
               <circle cx="300" cy="355" r="20" fill="#040403"/>
-              <circle cx="300" cy="346.5" r="3.4" fill="#f2dd00"/><rect x="296.8" y="351.5" width="6.4" height="14" rx="3.2" fill="#f2dd00"/>
+              <circle cx="300" cy="346.5" r="3.4" fill="#ffbe4d"/><rect x="296.8" y="351.5" width="6.4" height="14" rx="3.2" fill="#ffbe4d"/>
             </g>
           </g>
           <path d="M 215 355 Q 300 281 385 355 Q 300 429 215 355 Z" fill="none" stroke="#0c0c0c" stroke-width="8"/>

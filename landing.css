@@ -65,9 +65,9 @@ body.revealed #revbg { display: block; }
 /* ── easter egg: Cmd/Ctrl+Shift+L puts a cursor-tracking eye on the "A" in LAST (driven by landing.js) ── */
 .lp-a { position: relative; }                 /* anchor for the overlaid eye; the letter stays in flow */
 .lp-a-eye {
-  display: none; position: absolute; left: 50%; top: 54%;
-  width: .58em; height: auto; transform: translate(-50%, -50%); pointer-events: none;
-  filter: drop-shadow(0 0 5px rgba(255,150,40,.45));   /* faint glow so the eye sits in the neon title */
+  display: none; position: absolute; left: 50%; top: 47%;       /* sits a bit high in the A */
+  width: .29em; height: auto; transform: translate(-50%, -50%); pointer-events: none;
+  filter: drop-shadow(0 0 4px rgba(255,150,40,.5));   /* faint glow so the eye sits in the neon title */
 }
 body.eye-a .lp-a-eye { display: block; }
 .lp-event {
