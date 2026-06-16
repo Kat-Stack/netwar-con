@@ -37,6 +37,15 @@ CDN). Colours baked into inline SVG attributes survive; layout that lives only i
   hero, size key elements, hide what should be hidden, lock scroll). Keep the external sheets for the
   rest; their more-specific state rules (`body.revealed #x`) still override the inline defaults.
 
+### 3b. Inline critical CSS must replicate the global resets, not just the component rules
+Critical CSS is a *subset* of the real stylesheet, but it inherits the browser defaults for whatever it
+omits — including `box-sizing`. puzzle.css sets `*{box-sizing:border-box}`; the critical block didn't, so
+in the critical-only paint `#hero` used `content-box`, its padding inflated the height, and the centred
+triangle sat ~50px low until the external CSS (border-box) snapped it back — a visible down-then-up jump.
+- **Rule:** when you inline critical CSS, copy the global resets (`box-sizing`, margins) too, and make
+  the critical rules byte-identical to their external counterparts. Verify by measuring the layout with
+  the external sheets **blocked** vs present — the numbers must match, or you'll get a load-time reflow.
+
 ### 4. An inline `<svg>` with a viewBox but no width/height stretches to the container before CSS
 With no intrinsic size, the browser sizes a viewBox-only SVG to the container width on first paint, then
 the CSS snaps it down → a visible "zoom then shrink."

@@ -90,6 +90,21 @@ settled. Four distinct causes, four fixes.
 - **Verified:** with **both** stylesheets blocked, the gate renders centred, sized, no video, no
   scroll, on Chromium *and* Firefox.
 
+### (e) Triangle jumped down-then-up into place on load
+- **Symptom:** on load the centred triangle dropped ~50px, then snapped up into position (Firefox).
+- **Root cause:** the inlined critical CSS (3d) was **missing `box-sizing: border-box`** — puzzle.css
+  sets it via `*`, the critical block didn't. So in the critical-only paint `#hero` used the default
+  `content-box`, which **adds** its `11vh + 1rem` padding to `min-height: 100svh` — inflating the hero
+  past the viewport (820 → 926px) and dropping the centred triangle ~53px. When puzzle.css applied
+  `border-box`, the hero snapped back to 820 and the triangle jumped up. Most visible on a slow load.
+- **Fix that worked:** add `*{box-sizing:border-box}` to the critical CSS and align the remaining
+  `#hero`/`#hazard` rules with puzzle.css (svh, flex:none) so the critical-only paint and the styled
+  paint are the **same layout** — verified the triangle top is identical (65px) with the external sheets
+  present vs blocked, on both engines. Also switched the gate hero `100dvh` → static `100svh` (equal on
+  desktop; dvh can be recomputed a frame after load on Firefox — a separate jump source; the gate never
+  scrolls so dynamic buys nothing).
+- **Commit:** `e3cc082`
+
 ---
 
 ## 4. The opening flip symbols (☣ → ☢ → eye)
