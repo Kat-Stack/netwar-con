@@ -7,6 +7,20 @@
        (was "dark", which made Firefox paint a black canvas + dark UI chrome before the CSS applied) -->
   <meta name="color-scheme" content="light" />
   <title>INFOHAZARD</title>
+  <!-- ░ Critical first-paint CSS, inlined ░ Firefox (esp. over a VPN / cold CDN) will paint the page
+       UNSTYLED if a render-blocking stylesheet is slow to arrive. Without these rules that first paint
+       shows the triangle stretched to the window + un-centred, the reveal video poster, and a scrolling
+       page. These mirror puzzle.css/landing.css so the gate is laid out correctly from the first byte;
+       the external sheets then take over (their reveal-state rules are more specific, so the reveal
+       still works). Keep in sync with puzzle.css. -->
+  <style>
+    html, body { margin: 0; height: 100%; background: #f4f2ea; }
+    body { overflow: hidden; }
+    #hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem 1rem 11vh; }
+    #hazard { width: min(92vw, 88vh, 660px); height: auto; }
+    .credit { position: fixed; left: 0; right: 0; bottom: 26px; margin: 0; text-align: center; }
+    #revbg, #dread, #boom { display: none; }
+  </style>
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-16x16.png">
   <!-- preload the reveal assets so "The Last Psyop" fades in seamlessly: the LED font and
        war-room photo live in hidden elements, so without this they'd only start loading at
@@ -33,11 +47,7 @@
 <body>
   <!-- ░░░ THE EYE (exact gate eye) ░░░ -->
   <main id="hero">
-    <!-- size the SVG INLINE (mirrors #hazard in puzzle.css): a viewBox-only <svg> has no intrinsic
-         size, so before the CSS loads the browser stretches it to the container width (~1.8x) and it
-         visibly shrinks into place on the first frame. The inline width sizes it from the first byte. -->
     <svg id="hazard" viewBox="0 0 600 560" xmlns="http://www.w3.org/2000/svg"
-         style="width: min(92vw, 88vh, 660px); height: auto;"
          role="img" aria-label="Infohazard — the watching eye">
       <defs>
         <radialGradient id="iris" cx="50%" cy="48%" r="52%">
