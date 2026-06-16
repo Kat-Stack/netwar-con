@@ -202,6 +202,7 @@
       setTitleEye(body.classList.toggle('eye-a'));
     }
   });
+  setTitleEye(body.classList.contains('eye-a'));   // default-on: start tracking to match the body class
 
   /* ---- allow the puzzle to be skipped: ?reveal jumps straight into The Last Psyop ---- */
   if (location.search.includes('reveal')) {
