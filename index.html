@@ -14,10 +14,11 @@
        the external sheets then take over (their reveal-state rules are more specific, so the reveal
        still works). Keep in sync with puzzle.css. -->
   <style>
+    *, *::before, *::after { box-sizing: border-box; }   /* match puzzle.css — without it the critical-only paint adds padding to #hero's height, dropping the triangle ~50px before the CSS snaps it back up */
     html, body { margin: 0; height: 100%; background: #f4f2ea; }
     body { overflow: hidden; }
-    #hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem 1rem 11vh; }
-    #hazard { width: min(92vw, 88vh, 660px); height: auto; }
+    #hero { min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 1rem 1rem calc(11vh + env(safe-area-inset-bottom, 0px)); }
+    #hazard { width: min(92vw, 88vh, 660px); height: auto; flex: none; }   /* flex:none matches puzzle.css — without it the flex row mis-sizes the SVG and it sits lower, then jumps up when the CSS lands */
     .credit { position: fixed; left: 0; right: 0; bottom: 26px; margin: 0; text-align: center; }
     #revbg, #dread, #boom { display: none; }
   </style>

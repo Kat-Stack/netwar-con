@@ -18,7 +18,10 @@ body {
 
 /* ░ THE EYE — inverted scheme: white world, solid yellow triangle w/ black line ░ */
 #hero {
-  min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; justify-content: center;
+  /* STATIC svh (not dynamic dvh): dvh is recomputed a frame after load on Firefox once the toolbar
+     settles, which moved the static-sized triangle down-then-up into place. svh equals vh on desktop
+     and stays put. Kept identical to the inlined critical CSS in index.html so there's no reflow. */
+  min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center;
   padding: 1rem 1rem calc(11vh + env(safe-area-inset-bottom, 0px));   /* room at the bottom for the heart, above the gesture bar */
   background: #f4f2ea; transition: opacity 1s ease;
 }
