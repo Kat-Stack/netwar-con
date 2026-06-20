@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 560" width="600" height="560" role="img" aria-label="Infoblessing — the blessed eye">
+  <title>Infoblessing</title>
+  <desc>The Last Psyop blessing sign: a pink triangle with the eye, a heart in its pupil (the infohazard, blessed).</desc>
+  <defs>
+    <clipPath id="eyeClip"><path d="M 215 355 Q 300 281 385 355 Q 300 429 215 355 Z"/></clipPath>
+  </defs>
+  <!-- pink blessing triangle, black outline -->
+  <polygon points="300,46 542,498 58,498" fill="#ff8fd0" stroke="#0c0c0c" stroke-width="14" stroke-linejoin="round"/>
+  <!-- the blessed eye, scaled 137% about its centre, with a heart in the pupil -->
+  <g transform="translate(300 355) scale(1.37) translate(-300 -355)">
+    <g clip-path="url(#eyeClip)">
+      <ellipse cx="300" cy="355" rx="120" ry="68" fill="#ff8fd0"/>
+      <circle cx="300" cy="355" r="47" fill="#ff8fd0" stroke="#0c0c0c" stroke-width="6"/>
+      <circle cx="300" cy="355" r="22" fill="#0a0608"/>
+      <!-- heart (the "i" becomes a heart on blessing) -->
+      <path d="M300 367 C316 353 311 340 300 348 C289 340 284 353 300 367 Z" fill="#ff8fd0"/>
+    </g>
+    <path d="M 215 355 Q 300 281 385 355 Q 300 429 215 355 Z" fill="none" stroke="#0c0c0c" stroke-width="7"/>
+  </g>
+</svg>
