@@ -154,7 +154,7 @@
       if (_aiBless !== true) {                                 // paint the pink resting visuals once
         _aiBless = true; _aiCt = -1; _aiRed = -1;
         for (let i = 0; i < 4; i++) irisStops[i].setAttribute('stop-color', PINK[i]);
-        pupil.setAttribute('r', '23');
+        pupil.setAttribute('r', '27');
         gaze.style.filter = 'drop-shadow(0 0 14px #ff8fd0)';
         root.style.setProperty('--dread', '0');
         if (typeof redTri !== 'undefined') redTri.setAttribute('opacity', '0');
@@ -170,7 +170,7 @@
     if (ctR !== _aiCt) {                                       // iris colour + pupil + glow only move with intensity
       _aiCt = ctR;
       for (let i = 0; i < 4; i++) irisStops[i].setAttribute('stop-color', toHex(mix(COOL[i], HOT[i], ctR)));
-      pupil.setAttribute('r', (20 + Math.pow(ctR, 1.4) * 24).toFixed(1));   // widens with fear
+      pupil.setAttribute('r', (27 + Math.pow(ctR, 1.4) * 17).toFixed(1));   // 27 at rest → ~44 when closest
       gaze.style.filter = `drop-shadow(0 0 ${(6 + ctR * 22).toFixed(0)}px ${toHex(mix(GLOW_COOL, GLOW_HOT, ctR))})`;
     }
     if (!busy) {   // proximity glow; while busy (the click pulse) the pulse owns the red via style.opacity
@@ -208,7 +208,7 @@
 
   // (b) the mark over the pupil — a red "i" (on click) that morphs into a pink heart (on bless).
   //     it lives INSIDE #gaze so it tracks and stays centred in the pupil as the eye looks around.
-  const RI_I = '<circle cx="300" cy="346.5" r="3.8" fill="#ff3b1a"/><rect x="296.6" y="351.3" width="6.8" height="14.4" rx="3.4" fill="#ff3b1a"/>';
+  const RI_I = '<circle cx="300" cy="341.1" r="5.85" fill="#ff3b1a"/><rect x="294.5" y="349.7" width="11" height="24.1" rx="5.5" fill="#ff3b1a"/>';
   const RI_HEART = '<path d="M300 367 C316 353 311 340 300 348 C289 340 284 353 300 367 Z" fill="#ff8fd0"/>';
   const redi = document.createElementNS(SVGNS, 'g');
   redi.id = 'redi'; redi.setAttribute('pointer-events', 'none');
@@ -480,7 +480,7 @@
     heart.classList.remove('dragging'); heart.textContent = '❤️'; heart.style.transform = ''; heart.style.left = ''; heart.style.top = '';
     tgx = tgy = gx = gy = 0; targetInt = intensity = 0;
     gaze.style.filter = 'none'; redTri.style.opacity = '0';
-    pupil.removeAttribute('mask'); pupil.setAttribute('r', '22'); pupil.style.fill = '#0a0608';
+    pupil.removeAttribute('mask'); pupil.setAttribute('r', '27'); pupil.style.fill = '#0a0608';
     redi.innerHTML = RI_HEART; redi.style.opacity = '1'; puzzle(0);   // the "i" becomes a heart (1st unlock sound)
     [irisC, scleraE, triEl].forEach((el) => { el.style.transition = 'fill .16s linear'; });
     const PINK = '#ff8fd0';
@@ -553,7 +553,7 @@
     tgx = tgy = gx = gy = 0; targetInt = intensity = 0;
     gaze.style.filter = 'none';                   // no shine
     redTri.style.opacity = '0';                   // the proximity glow is off; this is flat fills only
-    pupil.removeAttribute('mask'); pupil.setAttribute('r', '22'); pupil.style.fill = '#070605';
+    pupil.removeAttribute('mask'); pupil.setAttribute('r', '27'); pupil.style.fill = '#070605';
     [irisC, scleraE, triEl].forEach((el) => { el.style.transition = 'fill .16s linear'; });
     const RED = '#d60000';
     const url = LINKS[(Math.random() * LINKS.length) | 0];

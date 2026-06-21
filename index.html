@@ -68,8 +68,8 @@
         <!-- info "i" punched into the pupil (default on) -->
         <mask id="iMask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse">
           <rect x="246" y="301" width="108" height="108" fill="#fff" />
-          <circle cx="300" cy="346.5" r="3.4" fill="#000" />
-          <rect x="296.8" y="351.5" width="6.4" height="14" rx="3.2" fill="#000" />
+          <circle cx="300" cy="341.1" r="5.85" fill="#000" />
+          <rect x="294.5" y="349.7" width="11" height="24.1" rx="5.5" fill="#000" />
         </mask>
         <!-- becomes a heart on blessing -->
         <mask id="heartMask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse">
@@ -83,16 +83,16 @@
       <polygon id="triangle" class="tri" points="300,46 542,498 58,498"
                fill="#f2dd00" stroke="#0c0c0c" stroke-width="14" stroke-linejoin="round" />
 
-      <!-- the whole eye (visuals + hit area) scaled to 137% about its centre; the flip/gaze/blink
+      <!-- the whole eye (visuals + hit area) scaled to 136% about its centre; the flip/gaze/blink
            operate on the inner groups and compose with this -->
-      <g id="eyeAll" transform="translate(300 355) scale(1.37) translate(-300 -355)">
+      <g id="eyeAll" transform="translate(300 355) scale(1.36) translate(-300 -355)">
         <!-- eyeball: clipped to the almond, opened/closed by the inner #lid group -->
         <g clip-path="url(#eyeClip)">
           <g id="lid">
             <ellipse id="scleraE" cx="300" cy="355" rx="120" ry="68" fill="#f2dd00" />
             <g id="gaze">
-              <circle id="irisC" cx="300" cy="355" r="47" fill="#f2dd00" stroke="#0c0c0c" stroke-width="6" />
-              <circle id="pupil" cx="300" cy="355" r="20" fill="#040403" mask="url(#iMask)" />
+              <circle id="irisC" cx="300" cy="355" r="46" fill="#f2dd00" stroke="#0c0c0c" stroke-width="6" />
+              <circle id="pupil" cx="300" cy="355" r="27" fill="#040403" mask="url(#iMask)" />
               <circle id="hi" cx="285" cy="340" r="7.5" fill="#fffbe6" opacity="0.8" display="none" />
             </g>
           </g>

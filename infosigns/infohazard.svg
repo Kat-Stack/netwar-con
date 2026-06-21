@@ -7,14 +7,14 @@
   <!-- yellow warning triangle, black outline -->
   <polygon points="300,46 542,498 58,498" fill="#f2dd00" stroke="#0c0c0c" stroke-width="14" stroke-linejoin="round"/>
   <!-- the watching eye, scaled 137% about its centre, with the info "i" in the pupil -->
-  <g transform="translate(300 355) scale(1.37) translate(-300 -355)">
+  <g transform="translate(300 355) scale(1.36) translate(-300 -355)">
     <g clip-path="url(#eyeClip)">
       <ellipse cx="300" cy="355" rx="120" ry="68" fill="#f2dd00"/>
-      <circle cx="300" cy="355" r="47" fill="#f2dd00" stroke="#0c0c0c" stroke-width="6"/>
-      <circle cx="300" cy="355" r="20" fill="#040403"/>
+      <circle cx="300" cy="355" r="46" fill="#f2dd00" stroke="#0c0c0c" stroke-width="6"/>
+      <circle cx="300" cy="355" r="27" fill="#040403"/>
       <!-- info "i" (iris colour, as it shows through the pupil) -->
-      <circle cx="300" cy="346.5" r="3.4" fill="#f2dd00"/>
-      <rect x="296.8" y="351.5" width="6.4" height="14" rx="3.2" fill="#f2dd00"/>
+      <circle cx="300" cy="341.1" r="5.85" fill="#f2dd00"/>
+      <rect x="294.5" y="349.7" width="11" height="24.1" rx="5.5" fill="#f2dd00"/>
     </g>
     <path d="M 215 355 Q 300 281 385 355 Q 300 429 215 355 Z" fill="none" stroke="#0c0c0c" stroke-width="7"/>
   </g>
