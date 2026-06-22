@@ -1,0 +1,45 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   HELICOPTER CURSOR — demo_v2.html  (cosmetic + delivery skin; psyop.js unchanged)
+   The OS pointer is hidden and replaced by a chopper that follows the cursor, banks
+   into its travel, spins faster while moving, and slings the heart underneath as you
+   carry it to the eye. Rotor SFX (move-gated) lives in heli.js.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* hide the real cursor everywhere on the GATE — incl. the <html> root, so it stays hidden after
+   a back-navigation (otherwise the OS cursor reappears over the chopper). :not(.revealed) so the
+   OS cursor comes back the moment we cross into the hero/reveal page. */
+html.heli:not(.revealed), html.heli:not(.revealed) *,
+body.heli:not(.revealed), body.heli:not(.revealed) * { cursor: none !important; }
+/* on the hero/reveal page the chopper retires (heli.js stops its rotor + clears the inline cursor) */
+html.revealed #heli, body.revealed #heli { display: none !important; }
+
+/* subtle sound on/off control (top-right) — the SVG speaker icon (not an emoji); mutes the rotor
+   (heli.js watches .is-off) and all SFX. Faint until hovered. */
+body.heli .bgm-toggle {
+  display: flex; z-index: 210; width: 34px; height: 34px; opacity: .4;
+  background: rgba(244,240,231,.55); border-color: rgba(20,16,8,.2); color: rgba(20,16,8,.62);
+  transition: opacity .2s ease, transform .15s ease, border-color .2s, color .2s;
+}
+body.heli .bgm-toggle:hover { opacity: 1; transform: scale(1.07); border-color: var(--wood); color: var(--wood); }
+body.heli .bgm-toggle svg { width: 18px; height: 18px; }
+
+#heli {
+  position: fixed; left: 0; top: 0; z-index: 200; width: 88px; height: 50px;
+  pointer-events: none; opacity: 0; transition: opacity .2s ease;
+  transform: translate(-50%, -50%); will-change: transform;
+}
+#heli.show { opacity: 1; }
+/* matte-black sleekness + a low menacing red glow */
+#heli svg { display: block; width: 100%; height: 100%; overflow: visible;
+  filter: drop-shadow(0 5px 7px rgba(0,0,0,.5)) drop-shadow(0 0 4px rgba(255,40,40,.28)); }
+
+/* the blades — edge-on "spin" illusion by squashing across their own centre. heli.js drives the squash
+   (scaleX/scaleY) per-frame from the rotor `spin`, so the blades slow to a halt when the chopper is
+   still and rev back up on movement (and stay static under prefers-reduced-motion); we only set the
+   transform box/origin here. */
+#heli .blade,
+#heli .tailblade { transform-box: fill-box; transform-origin: center; }
+
+/* the heart, once grabbed, hangs slung BELOW the chopper instead of sitting at the cursor.
+   the position (+34px below the pointer) is set by moveHeart() in puzzle.js; here we just size it. */
+body.heli #heart.dragging { font-size: 40px; }

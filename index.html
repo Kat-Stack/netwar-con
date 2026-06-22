@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="heli">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
@@ -22,7 +22,8 @@
     .credit { position: fixed; left: 0; right: 0; bottom: 26px; margin: 0; text-align: center; }
     #revbg, #dread, #boom { display: none; }
   </style>
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-16x16.png">
+  <link rel="icon" type="image/svg+xml" href="infosigns/infohazard.svg">
+  <link rel="alternate icon" type="image/png" sizes="32x32" href="assets/favicon-16x16.png">
   <!-- preload the reveal assets so "The Last Psyop" fades in seamlessly: the LED font and
        war-room photo live in hidden elements, so without this they'd only start loading at
        reveal time (causing the wrong-font flash + black-then-photo pop). -->
@@ -44,9 +45,35 @@
        puzzle first so its base rules load before the reveal overrides. -->
   <link rel="stylesheet" href="puzzle.css" />
   <link rel="stylesheet" href="landing.css" />
+  <!-- helicopter cursor skin (cosmetic; the puzzle is unchanged) -->
+  <link rel="stylesheet" href="heli.css" />
 </head>
-<body class="eye-a">
+<body class="eye-a heli">
   <!-- eye-a = the watching eye on the title "A" is ON by default (Cmd/Ctrl+Shift+L toggles it off/on) -->
+  <!-- ░ HELICOPTER CURSOR — replaces the OS pointer, rotor SFX while moving, slings the heart (heli.js/css) ░ -->
+  <div id="heli" aria-hidden="true">
+    <!-- black-hawk: sleek, angular, matte-black, menacing — thin red cockpit visor + weapon pods -->
+    <svg viewBox="0 0 92 52" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="54" cy="8" rx="42" ry="2.2" fill="rgba(150,170,190,.16)"/>
+      <rect class="blade" x="10" y="6.8" width="88" height="2.4" rx="1.2" fill="#06070a"/>
+      <line x1="54" y1="8" x2="54" y2="17" stroke="#10131a" stroke-width="3.4"/>
+      <path d="M36 21 L8 18.5 L7 22 L36 26 Z" fill="#0c0f15"/>
+      <path d="M12 20 L4 9 L7 8 L17 19 Z" fill="#090b0f"/>
+      <g transform="rotate(-20 6.5 14)"><rect class="tailblade" x="2.6" y="12.6" width="8" height="2.2" rx="1.1" fill="#06070a"/></g>
+      <path d="M30 17 L42 13 L60 13.5 L78 19 L86 27 L83 31 L74 33 L40 33 L30 30 L26 23 Z" fill="#13161d"/>
+      <path d="M42 13 L60 13.5 L78 19" fill="none" stroke="#39414f" stroke-width="1.1"/>
+      <path d="M46 14 L60 14 L60 18 L46 18 Z" fill="#0b0d12" opacity=".7"/>
+      <path d="M74 20 L85 26.5 L78 29 L70 24 Z" fill="#171d29"/>
+      <path d="M74.5 20.7 L84 26.3" stroke="#ff2e2e" stroke-width="1.5" opacity=".9"/>
+      <rect x="44" y="33" width="22" height="3" rx="1.2" fill="#0a0c10"/>
+      <rect x="46" y="35.6" width="5.5" height="5" rx="1.1" fill="#0e1116"/>
+      <rect x="58" y="35.6" width="5.5" height="5" rx="1.1" fill="#0e1116"/>
+      <line x1="38" y1="33" x2="36" y2="39" stroke="#06070a" stroke-width="2"/>
+      <circle cx="36" cy="40.5" r="2" fill="#06070a"/>
+      <line x1="72" y1="33" x2="74" y2="39" stroke="#06070a" stroke-width="2"/>
+      <circle cx="74" cy="40.5" r="2" fill="#06070a"/>
+    </svg>
+  </div>
   <!-- ░░░ THE EYE (exact gate eye) ░░░ -->
   <main id="hero">
     <svg id="hazard" viewBox="0 0 600 560" xmlns="http://www.w3.org/2000/svg"
@@ -300,5 +327,7 @@
        engine + the window.PSYOP bridge that landing.js hooks into (and the ?reveal skip uses). -->
   <script src="puzzle.js"></script>
   <script src="landing.js"></script>
+  <!-- the helicopter cursor (pointer-follow + synthesized rotor SFX); self-contained, puzzle unchanged -->
+  <script src="heli.js"></script>
 </body>
 </html>

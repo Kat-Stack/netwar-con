@@ -355,7 +355,8 @@
         setFace('☢');
         anim(setSym, 0, 1, HALF, () => {
           setTimeout(() => anim(setSym, 1, 0, HALF, () => {           // flip 3 — to the eye
-            flipSym.remove(); sfx.land();
+            flipSym.remove();   // (no landing "ding" — it was scheduled while the audio context was still
+                                //  suspended, so it surprise-played the instant the first click resumed it)
             eyeVis.forEach((el) => { el.style.opacity = '1'; });
             anim(sxEye, 0, 1, HALF + 50, () => {
               eyeVis.forEach((el) => el.removeAttribute('transform'));  // identity → lid/gaze resume normally
@@ -515,7 +516,9 @@
   /* ---- unified pointer handling (mouse + touch) ---- */
   let lastSpX = 0, lastSpY = 0, pdown = false, downX = 0, downY = 0, moved = false;
   // move via transform (GPU compositor) instead of left/top (which reflows every pointer-move)
-  const moveHeart = (x, y) => { heartX = x; heartY = y; heart.style.transform = `translate(${x}px,${y}px) translate(-50%,-50%)`; };
+  // heartX/heartY track the cursor (used for the proximity/anger calc); the heart is drawn 34px
+  // BELOW it so it hangs slung under the chopper cursor (the chopper sits at the pointer)
+  const moveHeart = (x, y) => { heartX = x; heartY = y; heart.style.transform = `translate(${x}px,${y + 34}px) translate(-50%,-50%)`; };
   // fairy-dust shimmer while holding the heart — sweet bell sparkles that quicken + swell as the
   // heart nears the eye and slow + soften as it drifts away
   // a sweet music-box twinkle: a note from a major-pentatonic scale (always consonant) as a soft
@@ -578,11 +581,10 @@
     })();
   }
 
-  let firstWake = true;
   window.addEventListener('pointerdown', (e) => {
     if (blessed || spinning) return;
     audio();   // unlock the audio context inside this user gesture so later SFX can play
-    if (firstWake) { firstWake = false; sfx.wake(); }
+    // (no first-click "wake" swell — the chopper's rotor is the ambient sound now)
     pdown = true; moved = false; downX = e.clientX; downY = e.clientY;
     if (overHeart(e.clientX, e.clientY)) grab(e.clientX, e.clientY);                 // tap / press the heart
     else { woken = true; updateGaze(e.clientX, e.clientY); updateAnger(e.clientX, e.clientY); }  // any tap wakes it → eye drifts toward the tap
