@@ -198,13 +198,35 @@
       else { tgx = tgy = gx = gy = 0; gaze.setAttribute('transform', 'translate(0 0)'); }   // recentre + stop
     };
   })();
+  // apply + sync the watching-eye toggle (shared by the gear checkbox and the Cmd/Ctrl+Shift+L shortcut)
+  function applyEye(on) { body.classList.toggle('eye-a', on); setTitleEye(on); const c = $('set-eye'); if (c) c.checked = on; }
   addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.code === 'KeyL' || e.key === 'l' || e.key === 'L')) {
       e.preventDefault();
-      setTitleEye(body.classList.toggle('eye-a'));
+      applyEye(!body.classList.contains('eye-a'));
     }
   });
-  setTitleEye(body.classList.contains('eye-a'));   // default-on: start tracking to match the body class
+
+  /* ---- ⚙ settings gear: handwritten-copy / watching-eye / september-banner toggles ---- */
+  (function settings() {
+    const gear = $('gear-toggle'), panel = $('settings');
+    if (!gear || !panel) return;
+    const open = (o) => { panel.hidden = !o; gear.setAttribute('aria-expanded', String(o)); };
+    gear.addEventListener('click', (e) => { e.stopPropagation(); open(panel.hidden); });
+    document.addEventListener('click', (e) => { if (!panel.hidden && !gear.contains(e.target) && !panel.contains(e.target)) open(false); });
+    const cHand = $('set-handwriting'), cEye = $('set-eye'), cSep = $('set-september');
+    if (cHand) cHand.addEventListener('change', () => body.classList.toggle('font-default', !cHand.checked));  // off → revert to the serif
+    if (cEye) cEye.addEventListener('change', () => applyEye(cEye.checked));
+    if (cSep) cSep.addEventListener('change', () => body.classList.toggle('no-september', !cSep.checked));       // off → hide the marquee
+    // Cmd/Ctrl+Shift+I reveals the (hidden-by-default) gear and opens the panel; press again to hide both
+    addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.code === 'KeyI' || e.key === 'i' || e.key === 'I')) {
+        e.preventDefault();
+        open(body.classList.toggle('show-gear'));
+      }
+    });
+  })();
+  applyEye(body.classList.contains('eye-a'));   // default-on: start tracking + sync the checkbox
 
   /* ---- allow the puzzle to be skipped: ?reveal jumps straight into The Last Psyop ---- */
   if (location.search.includes('reveal')) {

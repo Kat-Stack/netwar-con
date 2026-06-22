@@ -284,6 +284,17 @@
     </svg>
   </button>
 
+  <!-- ⚙ settings (reveal page only): font + watching-eye toggles -->
+  <button id="gear-toggle" class="gear-toggle" type="button" aria-label="Settings" aria-expanded="false" aria-controls="settings">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94a7.07 7.07 0 000-1.88l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7 7 0 00-1.62-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96a.5.5 0 00-.6.22L2.71 8.84a.5.5 0 00.12.64l2.03 1.58a7.07 7.07 0 000 1.88l-2.03 1.58a.5.5 0 00-.12.64l1.92 3.32c.13.22.39.31.6.22l2.39-.96c.49.38 1.03.7 1.62.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg>
+  </button>
+  <div id="settings" class="settings" hidden>
+    <p class="settings__title">Settings</p>
+    <label class="setting"><input type="checkbox" id="set-handwriting" checked> <span>Handwritten copy</span></label>
+    <label class="setting"><input type="checkbox" id="set-eye" checked> <span>Watching eye on the title</span></label>
+    <label class="setting"><input type="checkbox" id="set-september" checked> <span>&ldquo;Eternal September&rdquo; banner</span></label>
+  </div>
+
   <canvas id="boom" aria-hidden="true"></canvas>
   <!-- puzzle.js = the eye/heart gate · landing.js = the reveal. puzzle first: it owns the audio
        engine + the window.PSYOP bridge that landing.js hooks into (and the ?reveal skip uses). -->

@@ -1,6 +1,16 @@
 /* landing.css — The Last Psyop reveal: hero · copy · hosts · video · emblem · footer.
    Paired with landing.js. The eye/puzzle styles live in puzzle.css. */
 @font-face { font-family: 'LEDLIGHT'; src: url('assets/LEDLIGHT.otf') format('opentype'); font-display: swap; }
+/* Mom's Typewriter — a real typewriter scan; hand-typed-but-legible. The paper copy below the hero
+   is set in it BY DEFAULT (it suits the graph-paper memo look); the gear settings can revert the
+   paper to the original serifs by toggling body.font-default. We override the --serif/--body custom
+   props *scoped to .lp-paper*, so every paper element that reads them switches together. */
+@font-face { font-family: 'MomsTypewriter'; src: url('assets/momstypewriter.woff2') format('woff2'), url('assets/momstypewriter.ttf') format('truetype'); font-display: swap; }
+.lp-paper { --serif: 'MomsTypewriter', 'Courier New', monospace; --body: 'MomsTypewriter', 'Courier New', monospace; font-family: var(--body); }
+body.font-default .lp-paper {
+  --serif: 'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --body: 'EB Garamond', 'Iowan Old Style', Palatino, Georgia, 'Times New Roman', serif;
+}
 /* THE LAST PSYOP PAGE: scrolling re-enabled; light paper root so any overscroll / address-bar
    gap blends with the paper body (the dark hero is covered by the fixed #revbg, which is dark). */
 html.revealed { background: #f4f0e7; overflow: visible; overscroll-behavior: none; }
@@ -40,7 +50,7 @@ body.revealed #revbg { display: block; }
   color: var(--ink); font-family: var(--body); line-height: 1.8; font-weight: 400;
 }
 #reveal.show { opacity: 1; }
-.rev-inner { max-width: 680px; margin: 0 auto; }
+.rev-inner { max-width: calc(var(--col, 162px) * 3); margin: 0 auto; }   /* 3 photo-columns wide, centred on the grid */
 
 /* ── LANDING / HERO: transparent so the pinned photo shows through ──
    everything is sized so the whole block always fits one screen before the scroll: the title is
@@ -119,16 +129,20 @@ body.eye-a .lp-a-eye { display: block; }
 /* vertical rhythm: one grid cell (--u) == the body line-height, and every vertical dimension below
    is a whole multiple of --u, so every line of text lands on a rule (ruled-paper effect), down to
    the footer. --gy nudges the horizontal rules so they sit right under the text baselines. */
-.lp-paper { --u: 27px; --gy: 7px; }
+/* --col = the photo-circle COLUMN (= 6 ruled rows, so the 27px text rhythm still nests inside it).
+   The host photos and the copy are 3 columns wide and centred, and the major VERTICAL grid lines
+   are drawn at background-position-x:50% with a --col-wide tile — which lands them exactly on the
+   centred content's column edges, so each profile sits centred in its own column. */
+.lp-paper { --u: 27px; --gy: 7px; --col: 189px; }   /* 7 ruled rows; ≈ the original host spacing, now grid-aligned */
 .lp-paper::before {
   content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; pointer-events: none;
   background-image:
-    linear-gradient(rgba(161,77,24,.08) 1px, transparent 1px),          /* minor — horizontal */
-    linear-gradient(90deg, rgba(161,77,24,.08) 1px, transparent 1px),   /* minor — vertical */
-    linear-gradient(rgba(161,77,24,.16) 1px, transparent 1px),          /* major — horizontal */
-    linear-gradient(90deg, rgba(161,77,24,.16) 1px, transparent 1px);   /* major — vertical */
-  background-size: 27px 27px, 27px 27px, 135px 135px, 135px 135px;
-  background-position: 0 var(--gy), 0 0, 0 var(--gy), 0 0;
+    linear-gradient(rgba(161,77,24,.07) 1px, transparent 1px),          /* minor — horizontal (ruled rows) */
+    linear-gradient(90deg, rgba(161,77,24,.06) 1px, transparent 1px),   /* minor — vertical (27px, nests inside the columns) */
+    linear-gradient(rgba(161,77,24,.14) 1px, transparent 1px),          /* major — horizontal */
+    linear-gradient(90deg, rgba(161,77,24,.14) 1px, transparent 1px);   /* major — VERTICAL = the photo columns */
+  background-size: 100% 27px, 27px 100%, 100% var(--col), var(--col) 100%;
+  background-position: 0 var(--gy), 50% 0, 0 var(--gy), 50% 0;   /* both verticals at x:50% → minor lines nest exactly within the major columns, all straddling the centred content */
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 7vh);
           mask-image: linear-gradient(to bottom, transparent 0, #000 7vh);
 }
@@ -170,11 +184,11 @@ body.eye-a .lp-a-eye { display: block; }
 }
 /* margins (not flex-gap) for spacing so it works on every engine */
 .hosts-grid { display: flex; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
-.host { width: 150px; max-width: 42vw; margin: 0 20px 8px; text-align: center; }
+.host { width: var(--col, 162px); max-width: 42vw; margin: 0 0 8px; text-align: center; }   /* one grid column per host */
 /* circular pfp — the padding-bottom hack makes a guaranteed square (then a circle) on EVERY
    browser, even ones without `aspect-ratio`; the square source fills it via object-fit: cover */
 .host__photo {
-  position: relative; width: 100%; height: 0; padding-bottom: 100%;
+  position: relative; width: 150px; max-width: 100%; aspect-ratio: 1; margin: 0 auto;
   border-radius: 50%; overflow: hidden;
   background: #e7e0d2; border: 1px solid rgba(161,77,24,.32);
   box-shadow: 0 10px 26px rgba(60,30,8,.18), 0 0 0 5px rgba(161,77,24,.07);
@@ -205,6 +219,33 @@ body.revealed .bgm-toggle { display: flex; }
 .bgm-toggle.is-off { color: var(--ink2-soft); }
 .bgm-toggle.is-off .bgm-slash { display: block; }
 .bgm-toggle.is-off .snd-wave { display: none; }   /* muted: drop the sound waves, show the slash */
+
+/* ⚙ settings gear — same frosted pill, sits just left of the sound toggle; opens the settings card */
+.gear-toggle {
+  position: fixed; top: calc(env(safe-area-inset-top, 0px) + 14px); right: 64px; z-index: 96;
+  width: 42px; height: 42px; display: none; align-items: center; justify-content: center; padding: 0;
+  border: 1px solid rgba(161,77,24,.4); border-radius: 50%; cursor: pointer; color: var(--wood);
+  background: rgba(244,240,231,.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  box-shadow: 0 2px 12px rgba(60,30,8,.16); transition: color .2s, border-color .2s, transform .15s ease;
+}
+body.revealed.show-gear .gear-toggle { display: flex; }   /* gear is hidden by default — Cmd/Ctrl+Shift+I reveals it */
+.gear-toggle:hover { border-color: var(--wood); transform: scale(1.07); }
+.gear-toggle svg { width: 22px; height: 22px; display: block; transition: transform .35s ease; }
+.gear-toggle[aria-expanded="true"] svg { transform: rotate(75deg); }
+/* the settings card (under the gear) */
+.settings {
+  position: fixed; top: calc(env(safe-area-inset-top, 0px) + 64px); right: 14px; z-index: 97;
+  min-width: 216px; padding: 12px 15px 8px; border-radius: 11px;
+  border: 1px solid rgba(161,77,24,.4); background: rgba(248,244,235,.95);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: 0 14px 44px rgba(60,30,8,.24); color: var(--ink2);
+}
+.settings[hidden] { display: none; }
+.settings__title { font: 600 11px/1 'Cormorant Garamond', 'Georgia', serif; letter-spacing: .2em; text-transform: uppercase; color: var(--wood); margin: 0 0 8px; }
+.setting { display: flex; align-items: center; gap: 11px; padding: 7px 0; cursor: pointer; user-select: none; font: 400 15px/1.3 'EB Garamond', 'Georgia', serif; }
+.setting input { accent-color: var(--wood); width: 16px; height: 16px; cursor: pointer; flex: none; }
+.setting:hover { color: var(--wood); }
+body.no-september .es-sep { display: none; }   /* settings: hide the "eternal september" banner */
 
 /* "eternal september" scrolling separator between the hero and the paper body (always on) */
 .es-sep { position: relative; z-index: 1; display: block; overflow: hidden; white-space: nowrap; background: var(--wood); box-shadow: inset 0 1px 0 rgba(0,0,0,.18), inset 0 -1px 0 rgba(0,0,0,.18); }
