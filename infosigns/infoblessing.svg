@@ -12,8 +12,8 @@
       <ellipse cx="300" cy="355" rx="120" ry="68" fill="#ff8fd0"/>
       <circle cx="300" cy="355" r="46" fill="#ff8fd0" stroke="#0c0c0c" stroke-width="6"/>
       <circle cx="300" cy="355" r="27" fill="#0a0608"/>
-      <!-- heart (the "i" becomes a heart on blessing) -->
-      <path d="M300 367 C316 353 311 340 300 348 C289 340 284 353 300 367 Z" fill="#ff8fd0"/>
+      <!-- heart (the "i" becomes a heart on blessing) — 1.2x, centred on the eye -->
+      <path d="M300 367.9 C319.2 351.1 313.2 335.5 300 345.1 C286.8 335.5 280.8 351.1 300 367.9 Z" fill="#ff8fd0"/>
     </g>
     <path d="M 215 355 Q 300 281 385 355 Q 300 429 215 355 Z" fill="none" stroke="#0c0c0c" stroke-width="7"/>
   </g>

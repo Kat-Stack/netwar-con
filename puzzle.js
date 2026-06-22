@@ -209,7 +209,7 @@
   // (b) the mark over the pupil — a red "i" (on click) that morphs into a pink heart (on bless).
   //     it lives INSIDE #gaze so it tracks and stays centred in the pupil as the eye looks around.
   const RI_I = '<circle cx="300" cy="341.1" r="5.85" fill="#ff3b1a"/><rect x="294.5" y="349.7" width="11" height="24.1" rx="5.5" fill="#ff3b1a"/>';
-  const RI_HEART = '<path d="M300 367 C316 353 311 340 300 348 C289 340 284 353 300 367 Z" fill="#ff8fd0"/>';
+  const RI_HEART = '<path d="M300 367.9 C319.2 351.1 313.2 335.5 300 345.1 C286.8 335.5 280.8 351.1 300 367.9 Z" fill="#ff8fd0"/>';
   const redi = document.createElementNS(SVGNS, 'g');
   redi.id = 'redi'; redi.setAttribute('pointer-events', 'none');
   redi.innerHTML = RI_I;
