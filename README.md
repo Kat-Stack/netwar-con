@@ -1,3 +1,6 @@
+Wiki for the September Event here: https://nexus.libertymyself.com/index.php/The_September_Event
+
+
 This repo is for the website & general planning for the **September 4-6 event in Austin, TX**. 
 
 https://lastpsyop.com/
