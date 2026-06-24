@@ -1,22 +1,17 @@
-Wiki for the September Event here: https://nexus.libertymyself.com/index.php/The_September_Event
-
-
 This repo is for the website & general planning for the **September 4-6 event in Austin, TX**. 
 
 https://lastpsyop.com/
+https://luma.com/psyop-hackathon
 
-Also known as "Netwar Con" // "Propaganda Party" // "The First Psyops Hackathon". Use the appropriate name depending on who you're talking/pitching to. 
+Also known as "Netwar Con" // "Propaganda Party" // "The First Psyops Hackathon".
 
 ----
-
-Join the event Discord (this is for both "upcoming players" and those working in the backstage / meta game leading up to the event): https://discord.gg/Yxrr98ZDbw
-
----
 
 ### Appendix / WIP writeups & videos
 
 - [Appendix.md](./docs/Appendix.md)
 - [Game.md](./docs/Game.md)
+- Wiki: https://nexus.libertymyself.com/index.php/The_September_Event
 
 Initial June 1st announcement - https://defenderofthebasic.substack.com/p/the-last-psyop
 
