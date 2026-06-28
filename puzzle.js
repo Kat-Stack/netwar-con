@@ -50,6 +50,8 @@
     'https://en.wikipedia.org/wiki/Ghost_Army',
     'https://en.wikipedia.org/wiki/Memetic_warfare',
     'https://en.wikipedia.org/wiki/Information_warfare',
+    'https://en.wikipedia.org/wiki/Information_Operations_(United_States)',
+    'https://en.wikipedia.org/wiki/Fifth_dimension_operations',
     'https://www.lesswrong.com/w/information-hazards',
     'https://en.wikipedia.org/wiki/USS_Liberty_incident',
     'https://en.wikipedia.org/wiki/Lavon_Affair',
